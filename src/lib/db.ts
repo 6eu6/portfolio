@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 
-// Load .env manually to ensure correct DATABASE_URL
-// (bun caches .env — manual load overrides stale cache)
-if (typeof process !== "undefined") {
-  try {
-    const envFile = resolve(process.cwd(), ".env");
+// Load .env manually if it exists (for local dev / bun)
+// On Vercel, DATABASE_URL is injected directly into process.env
+try {
+  const envFile = resolve(process.cwd(), ".env");
+  if (existsSync(envFile)) {
     const envContent = readFileSync(envFile, "utf-8");
     for (const line of envContent.split("\n")) {
       const trimmed = line.trim();
@@ -22,9 +22,9 @@ if (typeof process !== "undefined") {
       }
       process.env[key] = value;
     }
-  } catch {
-    // .env not found — rely on process.env from Next.js
   }
+} catch {
+  // .env not found — rely on process.env (Vercel injects these)
 }
 
 import { PrismaClient } from "../../generated/prisma/client";
