@@ -6,10 +6,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { articles, getFeaturedArticle, type Article } from '@/data/articles';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Clock, PenLine } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import TextReveal from '@/components/motion/TextReveal';
 import ArticleDialog from '@/components/blog/ArticleDialog';
-import WriteArticleDialog from '@/components/blog/WriteArticleDialog';
 import type { ArticleDialogData } from '@/components/blog/ArticleDialog';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -50,7 +49,6 @@ export default function BlogSection() {
   // Dialog state
   const [selectedArticle, setSelectedArticle] = useState<ArticleDialogData | null>(null);
   const [isReading, setIsReading] = useState(false);
-  const [isWriting, setIsWriting] = useState(false);
 
   // Fetch API articles on mount
   useEffect(() => {
@@ -68,19 +66,6 @@ export default function BlogSection() {
     })();
     return () => { cancelled = true; };
   }, []);
-
-  // Re-fetch articles (called after publishing)
-  const refreshArticles = async () => {
-    try {
-      const res = await fetch('/api/articles?XTransformPort=3000');
-      if (res.ok) {
-        const data: ApiArticle[] = await res.json();
-        setApiArticles(data);
-      }
-    } catch {
-      // Silently ignore
-    }
-  };
 
   // Handle article click → open reading dialog
   const handleArticleClick = (a: Article | ApiArticle) => {
@@ -192,13 +177,15 @@ export default function BlogSection() {
             </p>
           </div>
           <Button
-            onClick={() => setIsWriting(true)}
             variant="outline"
             size="sm"
             className="flex items-center gap-2 shrink-0 border-[var(--line)] hover:border-[var(--sage)]/40 hover:text-[var(--sage)] transition-colors rounded-lg"
+            asChild
           >
-            <PenLine className="w-4 h-4" />
-            Write
+            <a href="#blog">
+              View All
+              <ArrowRight className="w-4 h-4" />
+            </a>
           </Button>
         </div>
 
@@ -329,9 +316,7 @@ export default function BlogSection() {
                   <Clock className="w-3 h-3" />
                   {article.readTime}
                 </span>
-                <span className="text-xs text-[var(--sage)]" title="Published via API">
-                  ★
-                </span>
+
               </div>
               <h3 className="text-lg font-semibold text-[var(--ink)] mb-1 group-hover:text-[var(--sage)] transition-colors duration-300">
                 {article.title}
@@ -357,12 +342,7 @@ export default function BlogSection() {
         }}
       />
 
-      {/* Article Writing Dialog */}
-      <WriteArticleDialog
-        open={isWriting}
-        onClose={() => setIsWriting(false)}
-        onPublished={() => refreshArticles()}
-      />
+
     </section>
   );
 }

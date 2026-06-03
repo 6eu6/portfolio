@@ -246,7 +246,7 @@ export default function Header() {
 
             <SheetContent
               side="right"
-              className="w-72 bg-[var(--paper)] border-[var(--line)]/40 p-0 flex flex-col"
+              className="w-72 bg-[var(--paper)] border-[var(--line)]/40 p-0 flex flex-col [&>[data-slot=sheet-close]]:hidden"
             >
               {/* Close button */}
               <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--line)]/30">
