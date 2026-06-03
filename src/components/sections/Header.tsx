@@ -6,13 +6,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { navigation } from '@/data/social';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Header() {
   const headerRef = useRef<HTMLElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const isVisible = useRef(false);
+  const showTlRef = useRef<gsap.core.Timeline | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -20,47 +22,46 @@ export default function Header() {
     const progress = progressRef.current;
     if (!header || !progress) return;
 
-    // Initially hidden
+    // Initially hide header
     gsap.set(header, { y: -100, opacity: 0 });
+    gsap.set(progress, { scaleX: 0 });
 
-    // Show on scroll past 400px
-    const showTween = gsap.to(header, {
+    // Create show/hide timeline
+    const showTl = gsap.timeline({ paused: true });
+    showTl.to(header, {
       y: 0,
       opacity: 1,
       duration: 0.4,
       ease: 'power3.out',
-      paused: true,
     });
+    showTlRef.current = showTl;
 
-    ScrollTrigger.create({
-      start: 'top -400px',
+    // Scroll listener
+    const scrollTriggerInstance = ScrollTrigger.create({
+      trigger: document.documentElement,
+      start: 'top top',
+      end: 'bottom bottom',
       onUpdate: (self) => {
-        if (self.direction === 1) {
-          showTween.play();
-        } else if (self.scroll() < 400) {
-          showTween.reverse();
-        }
-      },
-    });
+        const scrollPos = self.scroll();
+        const tl = showTlRef.current;
 
-    // Scroll progress bar
-    const progressTween = gsap.to(progress, {
-      scaleX: 1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: document.documentElement,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.3,
+        if (scrollPos > 300 && !isVisible.current) {
+          isVisible.current = true;
+          tl?.play();
+        } else if (scrollPos <= 300 && isVisible.current) {
+          isVisible.current = false;
+          tl?.reverse();
+        }
+
+        // Update progress bar directly
+        gsap.set(progress, { scaleX: self.progress });
       },
     });
 
     return () => {
-      showTween.kill();
-      progressTween.kill();
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger === document.documentElement || st.vars.start === 'top -400px') st.kill();
-      });
+      showTl.kill();
+      showTlRef.current = null;
+      scrollTriggerInstance.kill();
     };
   }, []);
 
@@ -118,7 +119,8 @@ export default function Header() {
       <div className="absolute bottom-0 left-0 right-0 h-0.5">
         <div
           ref={progressRef}
-          className="h-full bg-[var(--sage)] origin-left scale-x-0"
+          className="h-full bg-[var(--sage)] origin-left"
+          style={{ transform: 'scaleX(0)' }}
         />
       </div>
     </header>

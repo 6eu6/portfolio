@@ -26,37 +26,51 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function SocialSection() {
+  const headerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const header = headerRef.current;
     const grid = gridRef.current;
-    if (!grid) return;
+    if (!header || !grid) return;
 
+    // Header entrance
+    gsap.set(header, { opacity: 0, y: 30 });
+    const headerTl = gsap.to(header, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: header,
+        start: 'top 85%',
+        once: true,
+      },
+    });
+
+    // Cards entrance
     const cards = grid.querySelectorAll('.social-card');
+    gsap.set(cards, { opacity: 0, y: 40, scale: 0.95 });
 
-    const tween = gsap.fromTo(
-      cards,
-      { opacity: 0, y: 40, scale: 0.95 },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.6,
-        stagger: 0.08,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: grid,
-          start: 'top 80%',
-          end: 'top 30%',
-          toggleActions: 'play none none reverse',
-        },
-      }
-    );
+    const gridTl = gsap.to(cards, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.6,
+      stagger: 0.08,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: grid,
+        start: 'top 80%',
+        once: true,
+      },
+    });
 
     return () => {
-      tween.kill();
+      headerTl.kill();
+      gridTl.kill();
       ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger === grid) st.kill();
+        if (st.trigger === header || st.trigger === grid) st.kill();
       });
     };
   }, []);
@@ -64,16 +78,18 @@ export default function SocialSection() {
   return (
     <section id="social" className="py-24 md:py-32 bg-[var(--paper-2)]/30">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Section Label */}
-        <p className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-4">
-          Connect
-        </p>
-        <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4">
-          Find me online
-        </h2>
-        <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl">
-          I share progress, ideas, and resources across several platforms. Pick your favorite.
-        </p>
+        {/* Section Header */}
+        <div ref={headerRef}>
+          <p className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-4">
+            Connect
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4">
+            Find me online
+          </h2>
+          <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl">
+            I share progress, ideas, and resources across several platforms. Pick your favorite.
+          </p>
+        </div>
 
         {/* Grid */}
         <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

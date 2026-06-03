@@ -13,6 +13,8 @@ interface ScrollRevealProps {
   duration?: number;
   stagger?: number;
   className?: string;
+  /** If true, element stays visible after revealing (default: true) */
+  persist?: boolean;
 }
 
 export default function ScrollReveal({
@@ -22,6 +24,7 @@ export default function ScrollReveal({
   duration = 0.8,
   stagger = 0,
   className,
+  persist = true,
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -38,9 +41,9 @@ export default function ScrollReveal({
     };
 
     const { x, y } = directionMap[direction] || directionMap.up;
-
     const targets = stagger > 0 ? el.children : el;
 
+    // Set initial hidden state
     gsap.set(targets, { opacity: 0, x, y });
 
     const tween = gsap.to(targets, {
@@ -54,8 +57,10 @@ export default function ScrollReveal({
       scrollTrigger: {
         trigger: el,
         start: 'top 85%',
-        end: 'top 50%',
-        toggleActions: 'play none none reverse',
+        toggleActions: persist
+          ? 'play none none none'
+          : 'play none none reverse',
+        once: persist,
       },
     });
 
@@ -65,7 +70,7 @@ export default function ScrollReveal({
         if (st.trigger === el) st.kill();
       });
     };
-  }, [direction, delay, duration, stagger]);
+  }, [direction, delay, duration, stagger, persist]);
 
   return (
     <div ref={ref} className={className}>
@@ -146,8 +151,8 @@ export function ScaleOnScroll({
         scrollTrigger: {
           trigger: el,
           start: 'top 85%',
-          end: 'top 50%',
-          toggleActions: 'play none none reverse',
+          toggleActions: 'play none none none',
+          once: true,
         },
       }
     );

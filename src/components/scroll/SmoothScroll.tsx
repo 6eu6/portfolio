@@ -7,17 +7,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Module-level lenis instance (avoids ref-during-render issues)
 let lenisInstance: Lenis | null = null;
 
-function getLenisInstance(): Lenis | null {
-  return lenisInstance;
-}
+const LenisContext = createContext<(() => Lenis | null) | null>(null);
 
-const LenisContext = createContext(getLenisInstance);
-
-export function useLenis() {
-  return useContext(LenisContext)();
+export function useLenisInstance(): Lenis | null {
+  const getter = useContext(LenisContext);
+  return getter ? getter() : lenisInstance;
 }
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
@@ -29,7 +25,9 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     });
 
     lenisInstance = instance;
+    (window as unknown as Record<string, Lenis>).__lenis = instance;
 
+    // Sync Lenis with GSAP ScrollTrigger
     instance.on('scroll', ScrollTrigger.update);
 
     const tickerCallback = (time: number) => {
@@ -39,7 +37,27 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     gsap.ticker.add(tickerCallback);
     gsap.ticker.lagSmoothing(0);
 
+    // Intercept all hash link clicks for smooth scrolling
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a[href^="#"]');
+      if (anchor) {
+        const href = anchor.getAttribute('href');
+        if (href && href.startsWith('#') && href.length > 1) {
+          e.preventDefault();
+          const id = href.slice(1);
+          const el = document.getElementById(id);
+          if (el) {
+            instance.scrollTo(el, { offset: -80 });
+          }
+        }
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick);
+
     return () => {
+      document.removeEventListener('click', handleAnchorClick);
       gsap.ticker.remove(tickerCallback);
       instance.destroy();
       lenisInstance = null;
@@ -47,7 +65,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <LenisContext.Provider value={getLenisInstance}>
+    <LenisContext.Provider value={() => lenisInstance}>
       {children}
     </LenisContext.Provider>
   );
