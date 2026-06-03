@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Project } from '@/data/projects';
@@ -19,19 +19,16 @@ import { ContactSection } from '@/components/sections/ContactSection';
 import { Footer } from '@/components/sections/Footer';
 
 export default function Home() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
   }, []);
 
-  const handleProjectClick = useCallback((p: Project) => {
-    setSelectedProject(p);
+  const handleProjectClick = useCallback((_p: Project) => {
+    // Future: open project detail modal
   }, []);
 
-  const handleArticleClick = useCallback((a: Article) => {
-    setSelectedArticle(a);
+  const handleArticleClick = useCallback((_a: Article) => {
+    // Future: open article detail modal
   }, []);
 
   return (

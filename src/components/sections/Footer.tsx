@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { navigation, socialPlatforms } from '@/data/social';
 import {
   Github,
@@ -22,17 +21,6 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function Footer() {
-  const backToTopRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const btn = backToTopRef.current;
-    if (!btn) return;
-
-    btn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }, []);
-
   return (
     <footer className="bg-[var(--paper-2)] border-t border-[var(--line)] mt-auto">
       <div className="max-w-6xl mx-auto px-6 py-16">
@@ -92,13 +80,13 @@ export function Footer() {
           <p className="text-sm text-[var(--muted-foreground)]">
             © {new Date().getFullYear()} Ahmed Al-Shibani. Built with care.
           </p>
-          <button
-            ref={backToTopRef}
+          <a
+            href="#home"
             className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--sage)] transition-colors"
           >
             Back to top
             <ArrowUp className="w-4 h-4" />
-          </button>
+          </a>
         </div>
       </div>
     </footer>

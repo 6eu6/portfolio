@@ -11,7 +11,8 @@ import { Mail, MapPin, Clock, Send } from 'lucide-react';
 gsap.registerPlugin(ScrollTrigger);
 
 export function ContactSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const [formState, setFormState] = useState({
     name: '',
@@ -20,48 +21,80 @@ export function ContactSection() {
   });
 
   useEffect(() => {
-    const section = sectionRef.current;
+    const header = headerRef.current;
+    const info = infoRef.current;
     const form = formRef.current;
-    if (!section || !form) return;
 
-    const sectionTl = gsap.fromTo(
-      section,
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-      }
-    );
+    const tweens: gsap.core.Tween[] = [];
 
-    const formTl = gsap.fromTo(
-      form,
-      { opacity: 0, x: 40 },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 0.8,
-        delay: 0.2,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: form,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-      }
-    );
+    // Header entrance
+    if (header) {
+      gsap.set(header, { opacity: 0, y: 30 });
+      tweens.push(
+        gsap.to(header, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: header,
+            start: 'top 85%',
+            once: true,
+          },
+        })
+      );
+    }
+
+    // Info cards entrance (from left)
+    if (info) {
+      const cards = info.querySelectorAll('.contact-info-card');
+      gsap.set(cards, { opacity: 0, x: -40, y: 20 });
+      tweens.push(
+        gsap.to(cards, {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: info,
+            start: 'top 80%',
+            once: true,
+          },
+        })
+      );
+    }
+
+    // Form entrance (from right)
+    if (form) {
+      gsap.set(form, { opacity: 0, x: 40 });
+      tweens.push(
+        gsap.to(form, {
+          opacity: 1,
+          x: 0,
+          duration: 0.7,
+          delay: 0.2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: form,
+            start: 'top 80%',
+            once: true,
+          },
+        })
+      );
+    }
 
     return () => {
-      sectionTl.kill();
-      formTl.kill();
+      tweens.forEach((t) => t.kill());
       ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger === section || st.trigger === form) st.kill();
+        if (
+          (header && st.trigger === header) ||
+          (info && st.trigger === info) ||
+          (form && st.trigger === form)
+        ) {
+          st.kill();
+        }
       });
     };
   }, []);
@@ -73,23 +106,25 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" ref={sectionRef} className="py-24 md:py-32">
+    <section id="contact" className="py-24 md:py-32">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Section Label */}
-        <p className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-4">
-          Contact
-        </p>
-        <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4">
-          Let&apos;s talk
-        </h2>
-        <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl">
-          Have a project in mind, a question, or just want to connect? I&apos;d love to hear from you.
-        </p>
+        {/* Section Header */}
+        <div ref={headerRef}>
+          <p className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-4">
+            Contact
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4">
+            Let&apos;s talk
+          </h2>
+          <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl">
+            Have a project in mind, a question, or just want to connect? I&apos;d love to hear from you.
+          </p>
+        </div>
 
         <div className="grid md:grid-cols-5 gap-12">
           {/* Contact Info */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="flex items-start gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50">
+          <div ref={infoRef} className="md:col-span-2 space-y-6">
+            <div className="contact-info-card flex items-start gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50">
               <div className="w-10 h-10 rounded-lg bg-[var(--sage)]/10 flex items-center justify-center flex-shrink-0">
                 <Mail className="w-5 h-5 text-[var(--sage)]" />
               </div>
@@ -99,7 +134,7 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50">
+            <div className="contact-info-card flex items-start gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50">
               <div className="w-10 h-10 rounded-lg bg-[var(--sky)]/10 flex items-center justify-center flex-shrink-0">
                 <MapPin className="w-5 h-5 text-[var(--sky)]" />
               </div>
@@ -109,7 +144,7 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50">
+            <div className="contact-info-card flex items-start gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50">
               <div className="w-10 h-10 rounded-lg bg-[var(--lav)]/10 flex items-center justify-center flex-shrink-0">
                 <Clock className="w-5 h-5 text-[var(--lav)]" />
               </div>

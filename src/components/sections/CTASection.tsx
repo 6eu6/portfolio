@@ -25,8 +25,8 @@ export function CTASection({ title }: { title: string }) {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: el,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
+          start: 'top 85%',
+          once: true,
         },
       }
     );
@@ -40,15 +40,12 @@ export function CTASection({ title }: { title: string }) {
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="py-24 md:py-32"
-    >
+    <section ref={sectionRef} className="py-24 md:py-32">
       <div className="max-w-6xl mx-auto px-6">
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--sage)]/10 via-[var(--sky)]/10 to-[var(--lav)]/10 border border-[var(--line)]">
           {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--sage)]/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-[var(--lav)]/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--sage)]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-[var(--lav)]/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 py-16 md:py-20 px-8 md:px-16 text-center">
             <h2 className="text-3xl md:text-5xl font-bold text-[var(--ink)] mb-6 max-w-3xl mx-auto leading-tight">
