@@ -7,52 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+/* ─── Core: Admin user ──────────────────────────────────────────── */
+
+model Admin {
   id        String   @id @default(cuid())
   email     String   @unique
+  password  String
   name      String?
+  role      String   @default("admin") // "admin" | "editor"
+  lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+/* ─── Content: Articles / Blog ──────────────────────────────────── */
 
 model Article {
-  id        Int      @id @default(autoincrement())
-  slug      String   @unique
-  title     String
-  subtitle  String
-  content   String
-  category  String   @default("Product")
-  excerpt   String
-  readTime  String   @default("5 min")
-  featured  Boolean  @default(false)
-  published Boolean  @default(false)
-  tags      String   @default("[]")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  slug       String   @unique
+  title      String
+  subtitle   String   @default("")
+  content    String   @default("")
+  category   String   @default("Product")
+  excerpt    String   @default("")
+  readTime   String   @default("5 min")
+  featured   Boolean  @default(false)
+  published  Boolean  @default(false)
+  coverImage String   @default("")
+  tags       String   @default("[]") // JSON array stored as string
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
+
+/* ─── Content: Projects ──────────────────────────────────────────── */
 
 model Project {
   id              String   @id @default(cuid())
   slug            String   @unique
   title           String
-  subtitle        String
-  category        String
-  description     String
+  subtitle        String   @default("")
+  category        String   @default("AI")
+  description     String   @default("")
   longDescription String   @default("")
+  coverImage      String   @default("")
   tags            String   @default("[]")
-  year            String
+  year            String   @default("2025")
   status          String   @default("In Progress")
-  metric          String
+  metric          String   @default("")
   role            String   @default("")
   team            String   @default("")
   duration        String   @default("")
@@ -68,33 +69,60 @@ model Project {
   updatedAt       DateTime @updatedAt
 }
 
-model SocialLink {
+/* ─── Content: Interviews ────────────────────────────────────────── */
+
+model Interview {
   id          String   @id @default(cuid())
-  name        String
-  description String
-  metric      String
-  metricLabel String
-  url         String
-  icon        String
-  color       String
+  slug        String   @unique
+  title       String
+  description String   @default("")
+  content     String   @default("") // Markdown or HTML content
+  platform    String   @default("") // YouTube, Podcast, Article, etc.
+  platformUrl String   @default("#")
+  coverImage  String   @default("")
+  date        DateTime @default(now())
+  featured    Boolean  @default(false)
+  published   Boolean  @default(false)
+  tags        String   @default("[]")
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
+/* ─── Social: Links / Presence ──────────────────────────────────── */
+
+model SocialLink {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  metric      String   @default("")
+  metricLabel String   @default("")
+  url         String   @default("#")
+  icon        String   @default("Mail") // Maps to icon component name
+  color       String   @default("#333333")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/* ─── Contact: Messages from visitors ────────────────────────────── */
+
 model ContactMessage {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
+  subject   String   @default("")
   message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 
+/* ─── Settings: Site-wide configuration ──────────────────────────── */
+
 model SiteSetting {
-  id    String @id @default("global")
-  key   String @unique
-  value String
+  id        String   @id @default("global")
+  key       String   @unique
+  value     String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
