@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 node_modules
 /.pnp
@@ -30,29 +28,28 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — NEVER commit credentials
 .env*
+!.env.example
 
 # vercel
 .vercel
 
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-local-*
-.claude
-.z-ai-config
-*.log
-dev.log
-dev.out.log
-test
-prompt
-
-server.log
 
 # Prisma generated client
 /generated/
 
-# Skills directory
+# Non-project files
 /skills/
+/examples/
+/mini-services/
+/download/
+/.zscripts/
+/scripts/
+Caddyfile
+*.png
+worklog.md
+*.log
