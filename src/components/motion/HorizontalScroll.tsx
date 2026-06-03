@@ -155,7 +155,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden">
+    <section ref={sectionRef} className="relative overflow-x-clip">
       {/* Header */}
       <div ref={headerRef} className="max-w-6xl mx-auto px-6 pb-12 md:pb-16">
         <p className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-4">
