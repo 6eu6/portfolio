@@ -22,21 +22,19 @@ export default function Header() {
     const progress = progressRef.current;
     if (!header || !progress) return;
 
-    // Initially hide header
+    // Initially hide
     gsap.set(header, { y: -100, opacity: 0 });
     gsap.set(progress, { scaleX: 0 });
 
-    // Create show/hide timeline
     const showTl = gsap.timeline({ paused: true });
     showTl.to(header, {
       y: 0,
       opacity: 1,
-      duration: 0.4,
+      duration: 0.5,
       ease: 'power3.out',
     });
     showTlRef.current = showTl;
 
-    // Scroll listener
     const scrollTriggerInstance = ScrollTrigger.create({
       trigger: document.documentElement,
       start: 'top top',
@@ -53,7 +51,6 @@ export default function Header() {
           tl?.reverse();
         }
 
-        // Update progress bar directly
         gsap.set(progress, { scaleX: self.progress });
       },
     });
@@ -68,10 +65,10 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="fixed top-0 left-0 right-0 z-50 bg-[var(--paper)]/80 backdrop-blur-md border-b border-[var(--line)]"
+      className="fixed top-0 left-0 right-0 z-50 bg-[var(--paper)]/70 backdrop-blur-xl border-b border-[var(--line)]/50"
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="#home" className="text-lg font-semibold tracking-tight text-[var(--ink)]">
+        <a href="#home" className="text-lg font-semibold tracking-tight text-[var(--ink)] hover:text-[var(--sage)] transition-colors">
           Ahmed<span className="text-[var(--sage)]">.</span>
         </a>
 
@@ -81,7 +78,7 @@ export default function Header() {
             <a
               key={item.label}
               href={item.href}
-              className="text-sm text-[var(--muted-foreground)] hover:text-[var(--ink)] transition-colors"
+              className="text-sm text-[var(--muted-foreground)] hover:text-[var(--ink)] transition-colors duration-200"
             >
               {item.label}
             </a>
@@ -115,11 +112,11 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Scroll progress bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5">
+      {/* Progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px]">
         <div
           ref={progressRef}
-          className="h-full bg-[var(--sage)] origin-left"
+          className="h-full bg-gradient-to-r from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] origin-left"
           style={{ transform: 'scaleX(0)' }}
         />
       </div>
