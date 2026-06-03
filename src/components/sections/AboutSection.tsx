@@ -19,18 +19,57 @@ export default function AboutSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const bioRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const blob1Ref = useRef<HTMLDivElement>(null);
+  const blob2Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const section = sectionRef.current;
     const bio = bioRef.current;
     const cards = cardsRef.current;
-    if (!bio || !cards) return;
+    const blob1 = blob1Ref.current;
+    const blob2 = blob2Ref.current;
+    if (!section || !bio || !cards || !blob1 || !blob2) return;
 
-    // Bio entrance (slide from left)
-    gsap.set(bio, { opacity: 0, x: -60 });
-    gsap.to(bio, {
+    // ── Parallax decorative blobs at different scroll speeds ──
+    const parallaxCtx = gsap.context(() => {
+      gsap.to(blob1, {
+        y: -80,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1, // 0.5x speed
+        },
+      });
+
+      gsap.to(blob2, {
+        y: -240,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1, // 1.5x speed (larger displacement)
+        },
+      });
+    }, section);
+
+    // ── Bio entrance: line-by-line reveal with 3D tilt ──
+    const bioLines = bio.querySelectorAll('.bio-line');
+    gsap.set(bioLines, {
+      opacity: 0,
+      y: 30,
+      rotateX: 8,
+      transformOrigin: 'center bottom',
+    });
+
+    const bioTl = gsap.to(bioLines, {
       opacity: 1,
-      x: 0,
-      duration: 0.8,
+      y: 0,
+      rotateX: 0,
+      duration: 0.7,
+      stagger: 0.15,
       ease: 'power3.out',
       scrollTrigger: {
         trigger: bio,
@@ -39,15 +78,20 @@ export default function AboutSection() {
       },
     });
 
-    // Cards entrance (slide from right, staggered)
+    // ── Cards entrance: 3D flip-up with stagger ──
     const cardItems = cards.querySelectorAll('.info-card');
-    gsap.set(cardItems, { opacity: 0, x: 40, y: 20 });
+    gsap.set(cardItems, {
+      opacity: 0,
+      y: 40,
+      rotateX: 5,
+      transformOrigin: 'center bottom',
+    });
 
-    gsap.to(cardItems, {
+    const cardsTl = gsap.to(cardItems, {
       opacity: 1,
-      x: 0,
       y: 0,
-      duration: 0.5,
+      rotateX: 0,
+      duration: 0.6,
       stagger: 0.12,
       ease: 'power3.out',
       scrollTrigger: {
@@ -58,19 +102,37 @@ export default function AboutSection() {
     });
 
     return () => {
+      parallaxCtx.revert();
+      bioTl.kill();
+      cardsTl.kill();
       ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger === bio || st.trigger === cards) st.kill();
+        if (
+          st.trigger === bio ||
+          st.trigger === cards ||
+          st.trigger === section
+        )
+          st.kill();
       });
     };
   }, []);
 
   return (
-    <section id="about" ref={sectionRef} className="relative py-28 md:py-40 overflow-hidden">
-      {/* Decorative */}
-      <div className="absolute top-20 -left-32 w-64 h-64 bg-[var(--sage)]/8 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 -right-32 w-64 h-64 bg-[var(--lav)]/8 rounded-full blur-3xl pointer-events-none" />
+    <section
+      id="about"
+      ref={sectionRef}
+      className="relative py-28 md:py-40 overflow-hidden"
+    >
+      {/* Parallax decorative blobs */}
+      <div
+        ref={blob1Ref}
+        className="absolute top-20 -left-32 w-64 h-64 bg-[var(--sage)]/8 rounded-full blur-3xl pointer-events-none will-change-transform"
+      />
+      <div
+        ref={blob2Ref}
+        className="absolute bottom-20 -right-32 w-64 h-64 bg-[var(--lav)]/8 rounded-full blur-3xl pointer-events-none will-change-transform"
+      />
 
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Label */}
         <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
           About
@@ -82,40 +144,46 @@ export default function AboutSection() {
         />
 
         <div className="grid md:grid-cols-2 gap-12 md:gap-20">
-          {/* Bio Text */}
-          <div ref={bioRef}>
+          {/* Bio Text — with perspective for 3D tilt */}
+          <div ref={bioRef} style={{ perspective: '800px' }}>
             <div className="space-y-6 text-[var(--muted-foreground)] leading-relaxed text-[15px]">
-              <p>
-                I&apos;m Ahmed Al-Shibani — a builder who sits at the intersection of product, engineering, and design.
-                I care about systems that are calm, precise, and built to last.
+              <p className="bio-line" style={{ transformStyle: 'preserve-3d' }}>
+                I&apos;m Ahmed Al-Shibani — a builder who sits at the intersection
+                of product, engineering, and design. I care about systems that are
+                calm, precise, and built to last.
               </p>
-              <p>
-                Over the past five years, I&apos;ve shipped AI platforms, payment infrastructure, developer tools,
-                editorial systems, and visual data tools — each designed with clarity as the north star.
+              <p className="bio-line" style={{ transformStyle: 'preserve-3d' }}>
+                Over the past five years, I&apos;ve shipped AI platforms, payment
+                infrastructure, developer tools, editorial systems, and visual data
+                tools — each designed with clarity as the north star.
               </p>
-              <p>
-                I believe the best products are the ones that disappear into the background while quietly
-                compounding value. Less noise, more signal, always.
+              <p className="bio-line" style={{ transformStyle: 'preserve-3d' }}>
+                I believe the best products are the ones that disappear into the
+                background while quietly compounding value. Less noise, more signal,
+                always.
               </p>
-              <p>
-                When I&apos;m not building, I write about product thinking, system design, and the craft of
-                making things that matter.
+              <p className="bio-line" style={{ transformStyle: 'preserve-3d' }}>
+                When I&apos;m not building, I write about product thinking, system
+                design, and the craft of making things that matter.
               </p>
             </div>
           </div>
 
-          {/* Info Cards */}
-          <div ref={cardsRef} className="space-y-4">
+          {/* Info Cards — with perspective for 3D flip-up */}
+          <div ref={cardsRef} style={{ perspective: '800px' }} className="space-y-4">
             {infoCards.map((card) => (
               <div
                 key={card.label}
-                className="info-card flex items-start gap-4 p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50 hover:border-[var(--sage)]/30 transition-colors duration-300"
+                className="info-card flex items-start gap-4 p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50 hover:border-[var(--sage)]/30 transition-colors duration-300 min-h-[72px]"
+                style={{ transformStyle: 'preserve-3d' }}
               >
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[var(--sage)]/10 flex items-center justify-center">
                   <card.icon className="w-5 h-5 text-[var(--sage)]" />
                 </div>
-                <div>
-                  <p className="text-xs font-medium tracking-wider uppercase text-[var(--muted-foreground)] mb-1">{card.label}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium tracking-wider uppercase text-[var(--muted-foreground)] mb-1">
+                    {card.label}
+                  </p>
                   <p className="text-sm text-[var(--ink)]">{card.value}</p>
                 </div>
               </div>
