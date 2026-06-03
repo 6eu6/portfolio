@@ -63,6 +63,7 @@ import {
   Dribbble,
   Figma,
   Layers,
+ Mic,
 } from 'lucide-react';
 
 // ── Constants ───────────────────────────────────────────────────
@@ -125,6 +126,24 @@ interface SocialLink {
   url: string;
   icon: string;
   color: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Interview {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  content: string;
+  platform: string;
+  platformUrl: string;
+  coverImage: string;
+  date: string;
+  featured: boolean;
+  published: boolean;
+  tags: string;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -277,10 +296,16 @@ export default function AdminPage() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [expandedMessage, setExpandedMessage] = useState<number | null>(null);
 
+  // ── Interviews state ───────────────────────────────────────────
+  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [interviewsLoading, setInterviewsLoading] = useState(false);
+  const [interviewDialogOpen, setInterviewDialogOpen] = useState(false);
+  const [editingInterview, setEditingInterview] = useState<Interview | null>(null);
+
   // ── Delete confirmation dialog ──────────────────────────────────
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
-    type: 'article' | 'project' | 'social' | 'message';
+    type: 'article' | 'project' | 'social' | 'message' | 'interview';
     id: string | number;
     title: string;
   }>({ open: false, type: 'article', id: '', title: '' });
@@ -336,6 +361,18 @@ export default function AdminPage() {
     }
   }, []);
 
+  const fetchInterviews = useCallback(async () => {
+    setInterviewsLoading(true);
+    try {
+      const data = await apiFetch('/interviews?all=true');
+      setInterviews(data);
+    } catch {
+      toast.error('Failed to load interviews');
+    } finally {
+      setInterviewsLoading(false);
+    }
+  }, []);
+
   // Fetch on auth & tab change
   useEffect(() => {
     if (!authenticated) return;
@@ -343,7 +380,8 @@ export default function AdminPage() {
     else if (activeTab === 'projects') fetchProjects();
     else if (activeTab === 'socials') fetchSocials();
     else if (activeTab === 'messages') fetchMessages();
-  }, [authenticated, activeTab, fetchArticles, fetchProjects, fetchSocials, fetchMessages]);
+    else if (activeTab === 'interviews') fetchInterviews();
+  }, [authenticated, activeTab, fetchArticles, fetchProjects, fetchSocials, fetchMessages, fetchInterviews]);
 
   // ═══════════════════════════════════════════════════════════════
   // AUTH
@@ -548,6 +586,49 @@ export default function AdminPage() {
   };
 
   // ═══════════════════════════════════════════════════════════════
+  // INTERVIEWS ACTIONS
+  // ═══════════════════════════════════════════════════════════════
+  const toggleInterviewPublished = async (interview: Interview) => {
+    try {
+      await apiFetch(`/interviews/${interview.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ published: !interview.published }),
+      });
+      setInterviews((prev) =>
+        prev.map((i) => (i.id === interview.id ? { ...i, published: !i.published } : i))
+      );
+      toast.success(interview.published ? 'Interview unpublished' : 'Interview published');
+    } catch {
+      toast.error('Failed to update interview');
+    }
+  };
+
+  const toggleInterviewFeatured = async (interview: Interview) => {
+    try {
+      await apiFetch(`/interviews/${interview.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ featured: !interview.featured }),
+      });
+      setInterviews((prev) =>
+        prev.map((i) => (i.id === interview.id ? { ...i, featured: !i.featured } : i))
+      );
+      toast.success(interview.featured ? 'Unfeatured' : 'Marked as featured');
+    } catch {
+      toast.error('Failed to update interview');
+    }
+  };
+
+  const deleteInterview = async (id: string) => {
+    try {
+      await apiFetch(`/interviews/${id}`, { method: 'DELETE' });
+      setInterviews((prev) => prev.filter((i) => i.id !== id));
+      toast.success('Interview deleted');
+    } catch {
+      toast.error('Failed to delete interview');
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
   // MESSAGES ACTIONS
   // ═══════════════════════════════════════════════════════════════
   const toggleMessageRead = async (msg: ContactMessage) => {
@@ -580,6 +661,7 @@ export default function AdminPage() {
     else if (type === 'project') deleteProject(id as string);
     else if (type === 'social') deleteSocial(id as string);
     else if (type === 'message') deleteMessage(id as number);
+    else if (type === 'interview') deleteInterview(id as string);
     setDeleteConfirm({ ...deleteConfirm, open: false });
   };
 
@@ -670,6 +752,10 @@ export default function AdminPage() {
             <TabsTrigger value="socials" className="gap-1.5 data-[state=active]:bg-[var(--ink)] data-[state=active]:text-white">
               <Link2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Social Links</span>
+            </TabsTrigger>
+            <TabsTrigger value="interviews" className="gap-1.5 data-[state=active]:bg-[var(--ink)] data-[state=active]:text-white">
+              <Mic className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Interviews</span>
             </TabsTrigger>
             <TabsTrigger value="messages" className="gap-1.5 data-[state=active]:bg-[var(--ink)] data-[state=active]:text-white">
               <MessageSquare className="w-3.5 h-3.5" />
@@ -1121,6 +1207,138 @@ export default function AdminPage() {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ═══════════════════════════════════════════════════ */}
+          {/* INTERVIEWS TAB                                    */}
+          {/* ═══════════════════════════════════════════════════ */}
+          <TabsContent value="interviews">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-[var(--ink)]">Interviews</h2>
+                <p className="text-sm text-[var(--muted-foreground)]">{interviews.length} total</p>
+              </div>
+            </div>
+
+            {interviewsLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-14 w-full rounded-lg bg-[var(--paper-2)]" />
+                ))}
+              </div>
+            ) : interviews.length === 0 ? (
+              <div className="text-center py-16 border border-dashed border-[var(--line)] rounded-lg">
+                <Mic className="w-10 h-10 text-[var(--muted-foreground)] mx-auto mb-3" />
+                <p className="text-sm text-[var(--muted-foreground)]">No interviews yet. Add one via the API or database.</p>
+              </div>
+            ) : (
+              <div className="border border-[var(--line)] rounded-lg overflow-hidden">
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[var(--line)] bg-[var(--paper-2)]">
+                        <th className="text-left px-4 py-3 font-medium text-[var(--muted-foreground)]">Title</th>
+                        <th className="text-left px-4 py-3 font-medium text-[var(--muted-foreground)]">Platform</th>
+                        <th className="text-center px-4 py-3 font-medium text-[var(--muted-foreground)]">Status</th>
+                        <th className="text-center px-4 py-3 font-medium text-[var(--muted-foreground)]">Featured</th>
+                        <th className="text-left px-4 py-3 font-medium text-[var(--muted-foreground)]">Date</th>
+                        <th className="text-right px-4 py-3 font-medium text-[var(--muted-foreground)]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {interviews.map((interview) => (
+                        <tr key={interview.id} className="border-b border-[var(--line)] last:border-0 hover:bg-[var(--paper-2)]/50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-[var(--ink)]">{interview.title}</div>
+                            {interview.description && (
+                              <div className="text-xs text-[var(--muted-foreground)] mt-0.5 max-w-xs truncate">{interview.description}</div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge variant="secondary" className="text-xs">{interview.platform || '—'}</Badge>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <Switch checked={interview.published} onCheckedChange={() => toggleInterviewPublished(interview)} />
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              onClick={() => toggleInterviewFeatured(interview)}
+                              className="p-1 rounded hover:bg-[var(--paper-2)] transition-colors"
+                            >
+                              {interview.featured ? (
+                                <Star className="w-4 h-4 text-[var(--sand)] fill-[var(--sand)]" />
+                              ) : (
+                                <StarOff className="w-4 h-4 text-[var(--muted-foreground)]" />
+                              )}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3 text-[var(--muted-foreground)] text-xs">
+                            {formatDate(interview.date)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-[var(--muted-foreground)] hover:text-[var(--rose)] h-8 w-8 p-0"
+                              onClick={() =>
+                                setDeleteConfirm({
+                                  open: true,
+                                  type: 'interview',
+                                  id: interview.id,
+                                  title: interview.title,
+                                })
+                              }
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="md:hidden divide-y divide-[var(--line)]">
+                  {interviews.map((interview) => (
+                    <div key={interview.id} className="p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-medium text-[var(--ink)]">{interview.title}</div>
+                          <div className="text-xs text-[var(--muted-foreground)] mt-0.5">{formatDate(interview.date)}</div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => toggleInterviewFeatured(interview)} className="p-1.5 rounded hover:bg-[var(--paper-2)] transition-colors">
+                            {interview.featured ? (
+                              <Star className="w-4 h-4 text-[var(--sand)] fill-[var(--sand)]" />
+                            ) : (
+                              <StarOff className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            )}
+                          </button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-[var(--muted-foreground)] hover:text-[var(--rose)] h-8 w-8 p-0"
+                            onClick={() =>
+                              setDeleteConfirm({ open: true, type: 'interview', id: interview.id, title: interview.title })
+                            }
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">{interview.platform || '—'}</Badge>
+                        <div className="flex items-center gap-1.5 ml-auto">
+                          <span className="text-xs text-[var(--muted-foreground)]">{interview.published ? 'Published' : 'Draft'}</span>
+                          <Switch checked={interview.published} onCheckedChange={() => toggleInterviewPublished(interview)} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </TabsContent>
