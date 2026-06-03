@@ -1,27 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// POST /api/seed — seed the database with initial projects and social links
+// POST /api/seed — seed the database with initial data
 export async function POST(_request: NextRequest) {
   try {
     // Check if data already exists
     const existingProjects = await db.project.count();
-    if (existingProjects > 0) {
-      return NextResponse.json(
-        { error: "Database already contains projects. Clear data first if you want to re-seed." },
-        { status: 409 }
-      );
-    }
-
     const existingSocials = await db.socialLink.count();
-    if (existingSocials > 0) {
+
+    if (existingProjects > 0 || existingSocials > 0) {
       return NextResponse.json(
-        { error: "Database already contains social links. Clear data first if you want to re-seed." },
-        { status: 409 }
+        { error: "Database already has data. Clear tables first to re-seed." },
+        { status: 409 },
       );
     }
 
-    // Seed Projects
+    // ─── Seed Projects ─────────────────────────────────────────────
     const projectsData = [
       {
         slug: "atlas-analytics",
@@ -74,7 +68,7 @@ export async function POST(_request: NextRequest) {
         title: "Aether AI",
         subtitle: "Multi-Tool AI Assistant",
         category: "AI",
-        description: "",
+        description: "A multi-agent AI system that orchestrates specialized tools for research, code review, and content creation.",
         longDescription: "",
         tags: JSON.stringify(["LangChain", "OpenAI", "Pinecone", "React", "Python"]),
         year: "2024",
@@ -97,7 +91,7 @@ export async function POST(_request: NextRequest) {
         title: "Builder CLI",
         subtitle: "Developer Workflow Toolkit",
         category: "Developer Tools",
-        description: "",
+        description: "A command-line toolkit that automates scaffolding, environment setup, and deployment for development teams.",
         longDescription: "",
         tags: JSON.stringify(["Go", "Docker", "GitHub Actions", "YAML"]),
         year: "2023",
@@ -120,7 +114,7 @@ export async function POST(_request: NextRequest) {
         title: "Content OS",
         subtitle: "Editorial Operating System",
         category: "Content Systems",
-        description: "",
+        description: "An end-to-end editorial system for capturing ideas, managing drafts, and publishing across platforms.",
         longDescription: "",
         tags: JSON.stringify(["Sanity", "Next.js", "Vercel", "Resend"]),
         year: "2023",
@@ -143,7 +137,7 @@ export async function POST(_request: NextRequest) {
         title: "DataFlow Studio",
         subtitle: "Visual ETL Builder",
         category: "SaaS",
-        description: "",
+        description: "A visual builder for creating and monitoring ETL data pipelines with drag-and-drop connectors.",
         longDescription: "",
         tags: JSON.stringify(["Airflow", "Python", "Redis", "React", "Docker"]),
         year: "2023",
@@ -167,14 +161,14 @@ export async function POST(_request: NextRequest) {
       await db.project.create({ data: project });
     }
 
-    // Seed Social Links
+    // ─── Seed Social Links ────────────────────────────────────────
     const socialsData = [
       {
         name: "GitHub",
         description: "Open source projects and developer tools",
         metric: "120+",
         metricLabel: "Repos",
-        url: "https://github.com",
+        url: "https://github.com/6eu6",
         icon: "Github",
         color: "#333",
         sortOrder: 1,
@@ -235,17 +229,52 @@ export async function POST(_request: NextRequest) {
       await db.socialLink.create({ data: social });
     }
 
+    // ─── Seed Interviews (sample) ─────────────────────────────────
+    const interviewsData = [
+      {
+        slug: "building-products-that-scale",
+        title: "Building Products That Scale",
+        description: "A deep conversation about scaling products from 0 to 10K users, covering architecture decisions, team growth, and the mental models that help.",
+        content: "In this interview, we discussed the journey from a weekend project to a product serving thousands of users. Key themes: choosing the right tech stack, knowing when to optimize, and building a team culture that scales with the product.",
+        platform: "Podcast",
+        platformUrl: "#",
+        date: new Date("2024-11-15"),
+        featured: true,
+        published: true,
+        tags: JSON.stringify(["product", "scaling", "engineering"]),
+        sortOrder: 1,
+      },
+      {
+        slug: "ai-engineering-in-2025",
+        title: "AI Engineering in 2025",
+        description: "What does it mean to be an AI engineer today? We explore the shift from ML research to production AI, agent systems, and the tools reshaping development.",
+        content: "The landscape of AI engineering has shifted dramatically. We talked about the difference between AI research and AI engineering, how production constraints shape architecture, and what skills matter most in 2025.",
+        platform: "YouTube",
+        platformUrl: "#",
+        date: new Date("2025-01-20"),
+        featured: true,
+        published: true,
+        tags: JSON.stringify(["ai", "engineering", "future"]),
+        sortOrder: 2,
+      },
+    ];
+
+    for (const interview of interviewsData) {
+      await db.interview.create({ data: interview });
+    }
+
     return NextResponse.json({
       success: true,
       message: "Database seeded successfully",
-      projectsCreated: projectsData.length,
-      socialsCreated: socialsData.length,
+      projects: projectsData.length,
+      socials: socialsData.length,
+      interviews: interviewsData.length,
     });
   } catch (error) {
     console.error("Error seeding database:", error);
     return NextResponse.json(
       { error: "Failed to seed database" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
