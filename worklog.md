@@ -113,3 +113,27 @@ Stage Summary:
 - Mobile menu opens with staggered animation, smooth scroll works on all devices
 - 3D effects: WebGL hero (Three.js), horizontal scroll 3D cards, perspective transforms on all section entrances
 - Scroll velocity tracking active, header glassmorphism + active section highlighting working
+
+---
+Task ID: hero-fix + blog-system
+Agent: Main orchestrator + 2 subagents
+Task: Fix calm gradient, add word rotator, build blog reading/writing system
+
+Work Log:
+- Fixed "calm" gradient: moved bg-gradient-to-r + bg-clip-text + text-transparent from parent div to the span element directly, because buildRevealUnits creates nested spans that break gradient inheritance
+- Registered GSAP TextPlugin for word rotation animation
+- Created WordRotator: GSAP timeline cycles through calm → easy → simple → real → elegant → powerful every 3s with y-40 fadeout/y+40 fadein transitions
+- Set up Prisma Article model with: slug, title, subtitle, content, category, excerpt, readTime, featured, published, tags
+- Created API routes: GET /api/articles (list), POST /api/articles (create), GET /api/articles/[id] (read), DELETE /api/articles/[id] (delete)
+- Created ArticleDialog: full-screen reading dialog with markdown rendering (bold, italic, code, headers, lists, blockquotes, links, horizontal rules)
+- Created WriteArticleDialog: clean writing interface with title, subtitle, category dropdown, tags, content textarea (markdown), excerpt (auto-generated), featured toggle, publish button
+- Updated BlogSection: integrated both dialogs, added Write button, fetches API articles, merges with static articles (API articles have ★ indicator)
+- Cleaned up page.tsx to remove unused Article type import and handleArticleClick callback
+
+Stage Summary:
+- Gradient confirmed working: bg-clip-text, webkit-text-fill-color transparent, text "calm" visible
+- Word rotation verified: calm → real → simple confirmed via Agent Browser
+- Article reading dialog opens on click (verified with Agent Browser)
+- Write dialog opens and has all fields (verified with Agent Browser)
+- API returns 200 with Prisma query for articles
+- ESLint: zero errors

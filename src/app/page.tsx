@@ -4,7 +4,6 @@ import { useCallback, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Project } from '@/data/projects';
-import type { Article } from '@/data/articles';
 import { projects } from '@/data/projects';
 
 import { SmoothScrollProvider } from '@/components/scroll/SmoothScroll';
@@ -29,10 +28,6 @@ export default function Home() {
 
   const handleProjectClick = useCallback((_p: Project) => {
     // Future: open project detail modal
-  }, []);
-
-  const handleArticleClick = useCallback((_a: Article) => {
-    // Future: open article detail modal
   }, []);
 
   return (
@@ -93,7 +88,7 @@ export default function Home() {
             <ExpertiseSection />
 
             {/* Blog */}
-            <BlogSection onArticleClick={handleArticleClick} />
+            <BlogSection />
 
             {/* Social */}
             <SocialSection />
