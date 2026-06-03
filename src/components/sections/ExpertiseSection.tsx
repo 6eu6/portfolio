@@ -9,7 +9,7 @@ import TextReveal from '@/components/motion/TextReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   Brain,
   Code2,
   Palette,
@@ -26,15 +26,45 @@ export default function ExpertiseSection() {
     if (!grid) return;
 
     const cards = grid.querySelectorAll('.expertise-card');
-    gsap.set(cards, { opacity: 0, y: 50, scale: 0.95 });
+    const icons = grid.querySelectorAll('.expertise-icon');
 
-    const gridTl = gsap.to(cards, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 0.6,
-      stagger: 0.1,
-      ease: 'power3.out',
+    // ── Calculate diagonal stagger order ──
+    // Map cards into a virtual grid (mobile:1col, tablet:2col, desktop:3col)
+    // and sort by diagonal distance for stagger order
+    const viewWidth = window.innerWidth;
+    let cols: number;
+    if (viewWidth >= 1024) cols = 3;
+    else if (viewWidth >= 768) cols = 2;
+    else cols = 1;
+
+    const totalCards = cards.length;
+    const diagonalOrder: number[] = [];
+    for (let row = 0; row < Math.ceil(totalCards / cols); row++) {
+      for (let col = 0; col < cols; col++) {
+        const idx = row * cols + col;
+        if (idx < totalCards) diagonalOrder.push(idx);
+      }
+    }
+    // Sort by diagonal distance (row + col)
+    const gridMeta = diagonalOrder.map((idx) => {
+      const row = Math.floor(idx / cols);
+      const col = idx % cols;
+      return { idx, diagonal: row + col, row, col };
+    });
+    gridMeta.sort((a, b) => a.diagonal - b.diagonal || a.col - b.col);
+    const sortedIndices = gridMeta.map((m) => m.idx);
+
+    // ── Set initial states ──
+    gsap.set(cards, {
+      opacity: 0,
+      y: 50,
+      rotateY: -5,
+      transformOrigin: 'left center',
+    });
+    gsap.set(icons, { scale: 0, opacity: 0 });
+
+    // ── Create timeline for card entrance ──
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: grid,
         start: 'top 80%',
@@ -42,8 +72,33 @@ export default function ExpertiseSection() {
       },
     });
 
+    // Stagger cards in diagonal order
+    const sortedCards = sortedIndices.map((i) => cards[i]);
+    tl.to(sortedCards, {
+      opacity: 1,
+      y: 0,
+      rotateY: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power3.out',
+    });
+
+    // Icons spring in after cards appear (slight delay then spring)
+    const sortedIcons = sortedIndices.map((i) => icons[i]);
+    tl.to(
+      sortedIcons,
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.06,
+        ease: 'back.out(2.5)', // spring overshoot
+      },
+      '-=0.3', // overlap with tail of card animation
+    );
+
     return () => {
-      gridTl.kill();
+      tl.kill();
       ScrollTrigger.getAll().forEach((st) => {
         if (st.trigger === grid) st.kill();
       });
@@ -51,8 +106,8 @@ export default function ExpertiseSection() {
   }, []);
 
   return (
-    <section id="expertise" className="py-28 md:py-40">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="expertise" className="relative py-28 md:py-40 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
           Expertise
@@ -63,27 +118,51 @@ export default function ExpertiseSection() {
           stagger={0.06}
         />
         <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl text-[15px]">
-          From machine learning pipelines to polished frontends — here&apos;s where I spend my focus.
+          From machine learning pipelines to polished frontends — here&apos;s where
+          I spend my focus.
         </p>
 
-        {/* Grid */}
-        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Grid with perspective for 3D effects */}
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
+          style={{ perspective: '1000px' }}
+        >
           {expertiseAreas.map((area) => {
             const IconComponent = iconMap[area.icon];
             return (
               <div
                 key={area.title}
-                className="expertise-card group p-6 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:bg-[var(--paper)] transition-all duration-500 hover:shadow-lg hover:border-[var(--sage)]/30 hover:-translate-y-1"
+                className="expertise-card group relative p-6 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 transition-all duration-500 will-change-transform"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(0)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateZ(20px) translateY(-4px)';
+                  e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--sage) 30%, transparent)';
+                  e.currentTarget.style.boxShadow = '0 20px 40px -12px rgba(0,0,0,0.12)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateZ(0) translateY(0)';
+                  e.currentTarget.style.borderColor = '';
+                  e.currentTarget.style.boxShadow = '';
+                }}
               >
                 <div
-                  className="w-12 h-12 rounded-lg flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                  className="expertise-icon w-12 h-12 rounded-lg flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundColor: `${area.color}12` }}
                 >
                   {IconComponent && (
-                    <IconComponent className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" style={{ color: area.color }} />
+                    <IconComponent
+                      className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
+                      style={{ color: area.color }}
+                    />
                   )}
                 </div>
-                <h3 className="text-lg font-semibold text-[var(--ink)] mb-2">{area.title}</h3>
+                <h3 className="text-lg font-semibold text-[var(--ink)] mb-2">
+                  {area.title}
+                </h3>
                 <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                   {area.description}
                 </p>
