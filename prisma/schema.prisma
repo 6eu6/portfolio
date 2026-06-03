@@ -1,20 +1,20 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 
 /* ─── Core: Admin user ──────────────────────────────────────────── */
 
 model Admin {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   email     String   @unique
   password  String
   name      String?
-  role      String   @default("admin") // "admin" | "editor"
+  role      String   @default("admin")
   lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -34,7 +34,7 @@ model Article {
   featured   Boolean  @default(false)
   published  Boolean  @default(false)
   coverImage String   @default("")
-  tags       String   @default("[]") // JSON array stored as string
+  tags       String   @default("[]")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -42,7 +42,7 @@ model Article {
 /* ─── Content: Projects ──────────────────────────────────────────── */
 
 model Project {
-  id              String   @id @default(cuid())
+  id              String   @id @default(uuid())
   slug            String   @unique
   title           String
   subtitle        String   @default("")
@@ -72,12 +72,12 @@ model Project {
 /* ─── Content: Interviews ────────────────────────────────────────── */
 
 model Interview {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   slug        String   @unique
   title       String
   description String   @default("")
-  content     String   @default("") // Markdown or HTML content
-  platform    String   @default("") // YouTube, Podcast, Article, etc.
+  content     String   @default("")
+  platform    String   @default("")
   platformUrl String   @default("#")
   coverImage  String   @default("")
   date        DateTime @default(now())
@@ -92,13 +92,13 @@ model Interview {
 /* ─── Social: Links / Presence ──────────────────────────────────── */
 
 model SocialLink {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   name        String
   description String   @default("")
   metric      String   @default("")
   metricLabel String   @default("")
   url         String   @default("#")
-  icon        String   @default("Mail") // Maps to icon component name
+  icon        String   @default("Mail")
   color       String   @default("#333333")
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
@@ -120,7 +120,7 @@ model ContactMessage {
 /* ─── Settings: Site-wide configuration ──────────────────────────── */
 
 model SiteSetting {
-  id        String   @id @default("global")
+  id        String   @id @default(uuid())
   key       String   @unique
   value     String   @default("")
   createdAt DateTime @default(now())
