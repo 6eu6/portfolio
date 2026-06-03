@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -42,7 +36,65 @@ model Article {
   readTime  String   @default("5 min")
   featured  Boolean  @default(false)
   published Boolean  @default(false)
-  tags      String   @default("[]")  // JSON array string
+  tags      String   @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  subtitle        String
+  category        String
+  description     String
+  longDescription String   @default("")
+  tags            String   @default("[]")
+  year            String
+  status          String   @default("In Progress")
+  metric          String
+  role            String   @default("")
+  team            String   @default("")
+  duration        String   @default("")
+  problem         String   @default("")
+  solution        String   @default("")
+  features        String   @default("[]")
+  outcomes        String   @default("[]")
+  lessons         String   @default("")
+  liveUrl         String   @default("#")
+  sourceUrl       String   @default("#")
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SocialLink {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  metric      String
+  metricLabel String
+  url         String
+  icon        String
+  color       String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  id    String @id @default("global")
+  key   String @unique
+  value String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

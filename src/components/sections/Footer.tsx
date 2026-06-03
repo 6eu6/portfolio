@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef } from 'react';
-import { navigation, socialPlatforms } from '@/data/social';
+import { useRef, useState, useEffect } from 'react';
+import { navigation, socialPlatforms as staticSocialPlatforms } from '@/data/social';
 import {
   Github,
   Send,
@@ -130,6 +130,23 @@ function BackToTopButton() {
 export function Footer() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const [socialPlatforms, setSocialPlatforms] = useState(staticSocialPlatforms);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/socials?XTransformPort=3000');
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.length > 0) {
+            setSocialPlatforms(data);
+          }
+        }
+      } catch { /* fallback */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <footer ref={ref} className="bg-[var(--ink)] text-white mt-auto relative">

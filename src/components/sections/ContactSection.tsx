@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Mail, MapPin, Clock, Send } from 'lucide-react';
+import { toast } from 'sonner';
 import TextReveal from '@/components/motion/TextReveal';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,6 +17,7 @@ export function ContactSection() {
   const infoRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const bgGradientRef = useRef<HTMLDivElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formState, setFormState] = useState({
     name: '',
     email: '',
@@ -116,9 +118,34 @@ export function ContactSection() {
     };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formState);
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch('/api/contacts?XTransformPort=3000', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formState.name,
+          email: formState.email,
+          message: formState.message,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to send');
+
+      toast.success('Message sent!', {
+        description: "Thanks for reaching out. I'll get back to you soon.",
+      });
+      setFormState({ name: '', email: '', message: '' });
+    } catch {
+      toast.error('Failed to send', {
+        description: 'Something went wrong. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -199,7 +226,7 @@ export function ContactSection() {
                     placeholder="Your name"
                     value={formState.name}
                     onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
-                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-300 focus:border-[var(--sage)]/50 focus:shadow-[0_0_0_3px_rgba(142,181,145,0.12)] focus:bg-[var(--paper-2)]/60"
+                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-300 focus:border-[var(--sage)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_3px_rgba(142,181,145,0.12)] focus:bg-[var(--paper-2)]/60"
                     required
                   />
                 </div>
@@ -210,7 +237,7 @@ export function ContactSection() {
                     placeholder="you@email.com"
                     value={formState.email}
                     onChange={(e) => setFormState((s) => ({ ...s, email: e.target.value }))}
-                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-300 focus:border-[var(--sky)]/50 focus:shadow-[0_0_0_3px_rgba(100,149,170,0.12)] focus:bg-[var(--paper-2)]/60"
+                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-300 focus:border-[var(--sky)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_3px_rgba(100,149,170,0.12)] focus:bg-[var(--paper-2)]/60"
                     required
                   />
                 </div>
@@ -222,17 +249,22 @@ export function ContactSection() {
                   rows={6}
                   value={formState.message}
                   onChange={(e) => setFormState((s) => ({ ...s, message: e.target.value }))}
-                  className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] resize-none transition-all duration-300 focus:border-[var(--lav)]/50 focus:shadow-[0_0_0_3px_rgba(180,167,210,0.12)] focus:bg-[var(--paper-2)]/60"
+                  className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] resize-none transition-all duration-300 focus:border-[var(--lav)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_3px_rgba(180,167,210,0.12)] focus:bg-[var(--paper-2)]/60"
                   required
                 />
               </div>
               <Button
                 type="submit"
                 size="lg"
-                className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98]"
+                disabled={isSubmitting}
+                className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <Send className="mr-2 h-4 w-4" />
-                Send Message
+                {isSubmitting ? (
+                  <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                ) : (
+                  <Send className="mr-2 h-4 w-4" />
+                )}
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
             </form>
           </div>
