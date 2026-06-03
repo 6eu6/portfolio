@@ -4,9 +4,10 @@ import { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { stats } from '@/data/social';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, FileText } from 'lucide-react';
+import TextReveal from '@/components/motion/TextReveal';
+import Counter from '@/components/motion/Counter';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,62 +15,57 @@ const HeroScene = dynamic(() => import('@/components/three/HeroScene'), { ssr: f
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const eyebrowRef = useRef<HTMLParagraphElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
-    const eyebrow = eyebrowRef.current;
-    const heading = headingRef.current;
-    const subtitle = subtitleRef.current;
+    const content = contentRef.current;
     const cta = ctaRef.current;
     const statsEl = statsRef.current;
-    const content = contentRef.current;
+    if (!section || !content || !cta || !statsEl) return;
 
-    if (!section || !content || !eyebrow || !heading || !subtitle || !cta || !statsEl) return;
+    // CTA and stats entrance
+    gsap.set([cta, statsEl], { opacity: 0, y: 30 });
 
-    // --- Entrance Animation (plays once on mount) ---
-    // Set initial hidden states
-    gsap.set([eyebrow, heading, subtitle, cta, statsEl], { opacity: 0, y: 40 });
-
-    const entranceTl = gsap.timeline({
-      defaults: { ease: 'power3.out' },
-    });
-
+    const entranceTl = gsap.timeline({ delay: 2.3 }); // Delay for preloader
     entranceTl
-      .to(eyebrow, { opacity: 1, y: 0, duration: 0.6 })
-      .to(heading, { opacity: 1, y: 0, duration: 0.8 }, '-=0.3')
-      .to(subtitle, { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
-      .to(cta, { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
-      .to(statsEl, { opacity: 1, y: 0, duration: 0.6 }, '-=0.2');
+      .to(cta, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+      .to(statsEl, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.3');
 
-    // --- Scroll-away effect (tied to scroll, fully reversible) ---
-    // This fades out content as user scrolls down, and brings it back when scrolling up
+    // Scroll-away effect (bidirectional - works both ways)
     const scrollTl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
         start: 'top top',
         end: 'bottom top',
-        scrub: 0.5,
+        scrub: 0.8,
       },
     });
 
     scrollTl
-      .fromTo(content, { y: 0, opacity: 1 }, { y: -120, opacity: 0, ease: 'none' });
+      .fromTo(content, { y: 0, opacity: 1, scale: 1 }, { y: -150, opacity: 0, scale: 0.95, ease: 'none' });
+
+    // Stats parallax (slower)
+    gsap.to(statsEl, {
+      y: -60,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end: '60% top',
+        scrub: 1,
+      },
+    });
 
     return () => {
       entranceTl.kill();
       scrollTl.kill();
-      // Kill any ScrollTriggers tied to this section
       ScrollTrigger.getAll().forEach((st) => {
         if (st.trigger === section) st.kill();
       });
-      // Restore visibility in case of cleanup during animation
-      gsap.set([eyebrow, heading, subtitle, cta, statsEl], { opacity: 1, y: 0, clearProps: 'all' });
+      gsap.set([cta, statsEl], { opacity: 1, y: 0, clearProps: 'all' });
     };
   }, []);
 
@@ -87,38 +83,51 @@ export default function HeroSection() {
       {/* Content */}
       <div ref={contentRef} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         {/* Eyebrow */}
-        <p
-          ref={eyebrowRef}
-          className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-6"
-        >
-          Builder · Founder · Developer
-        </p>
+        <TextReveal
+          text="Builder · Founder · Developer"
+          className="text-sm font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-8 justify-center"
+          stagger={0.08}
+        />
 
-        {/* Heading */}
-        <h1
-          ref={headingRef}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[0.95] tracking-tight text-[var(--ink)] mb-8"
-        >
-          Building products{' '}
-          <span className="bg-gradient-to-r from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] bg-clip-text text-transparent">
-            that feel calm
-          </span>{' '}
-          and work well
-        </h1>
+        {/* Heading - word by word reveal */}
+        <div className="mb-8">
+          <TextReveal
+            text="Building products"
+            className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)] justify-center"
+            stagger={0.04}
+          />
+          <div className="flex flex-wrap justify-center mt-2">
+            <TextReveal
+              text="that feel"
+              className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)]"
+              stagger={0.05}
+            />
+            <TextReveal
+              text="calm"
+              className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight bg-gradient-to-r from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] bg-clip-text text-transparent"
+              stagger={0.06}
+            />
+          </div>
+          <TextReveal
+            text="and work well"
+            className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)] justify-center mt-2"
+            stagger={0.04}
+          />
+        </div>
 
         {/* Subtitle */}
-        <p
-          ref={subtitleRef}
-          className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mb-10"
-        >
-          I design and engineer systems, products, and experiences where clarity and craft compound over time.
-        </p>
+        <TextReveal
+          text="I design and engineer systems, products, and experiences where clarity and craft compound over time."
+          className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mb-12 justify-center"
+          stagger={0.02}
+          delay={0.3}
+        />
 
         {/* CTA Buttons */}
         <div ref={ctaRef} className="flex flex-wrap gap-4 justify-center">
           <Button
             size="lg"
-            className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90"
+            className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-8 text-sm tracking-wide"
             asChild
           >
             <a href="#projects-all">
@@ -129,7 +138,7 @@ export default function HeroSection() {
           <Button
             variant="outline"
             size="lg"
-            className="border-[var(--line)] text-[var(--ink)] hover:bg-[var(--paper-2)]"
+            className="border-[var(--line)] text-[var(--ink)] hover:bg-[var(--paper-2)] h-12 px-8 text-sm tracking-wide"
             asChild
           >
             <a href="#blog">
@@ -140,13 +149,31 @@ export default function HeroSection() {
         </div>
 
         {/* Stats Strip */}
-        <div ref={statsRef} className="mt-20 flex flex-wrap justify-center gap-8 md:gap-16">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-[var(--ink)]">{stat.value}</p>
-              <p className="text-sm text-[var(--muted-foreground)] mt-1">{stat.label}</p>
-            </div>
-          ))}
+        <div ref={statsRef} className="mt-20 md:mt-28 flex flex-wrap justify-center gap-10 md:gap-20">
+          <div className="text-center">
+            <p className="text-4xl md:text-5xl font-bold text-[var(--ink)]">
+              <Counter end={20} suffix="+" />
+            </p>
+            <p className="text-xs tracking-widest uppercase text-[var(--muted-foreground)] mt-2">Projects</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl md:text-5xl font-bold text-[var(--ink)]">
+              <Counter end={5} suffix="+" />
+            </p>
+            <p className="text-xs tracking-widest uppercase text-[var(--muted-foreground)] mt-2">Years Building</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl md:text-5xl font-bold text-[var(--ink)]">
+              <Counter end={50} suffix="+" />
+            </p>
+            <p className="text-xs tracking-widest uppercase text-[var(--muted-foreground)] mt-2">Articles</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl md:text-5xl font-bold text-[var(--ink)]">
+              <Counter end={10} suffix="K+" />
+            </p>
+            <p className="text-xs tracking-widest uppercase text-[var(--muted-foreground)] mt-2">Community Reach</p>
+          </div>
         </div>
       </div>
     </section>

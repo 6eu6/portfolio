@@ -5,6 +5,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { expertiseAreas } from '@/data/content';
 import { Brain, Code2, Palette, Server, Database, Wrench } from 'lucide-react';
+import TextReveal from '@/components/motion/TextReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,29 +19,12 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function ExpertiseSection() {
-  const headerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const header = headerRef.current;
     const grid = gridRef.current;
-    if (!header || !grid) return;
+    if (!grid) return;
 
-    // Header entrance
-    gsap.set(header, { opacity: 0, y: 30 });
-    const headerTl = gsap.to(header, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: header,
-        start: 'top 85%',
-        once: true,
-      },
-    });
-
-    // Cards entrance with stagger
     const cards = grid.querySelectorAll('.expertise-card');
     gsap.set(cards, { opacity: 0, y: 50, scale: 0.95 });
 
@@ -49,7 +33,7 @@ export default function ExpertiseSection() {
       y: 0,
       scale: 1,
       duration: 0.6,
-      stagger: 0.08,
+      stagger: 0.1,
       ease: 'power3.out',
       scrollTrigger: {
         trigger: grid,
@@ -59,45 +43,44 @@ export default function ExpertiseSection() {
     });
 
     return () => {
-      headerTl.kill();
       gridTl.kill();
       ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger === header || st.trigger === grid) st.kill();
+        if (st.trigger === grid) st.kill();
       });
     };
   }, []);
 
   return (
-    <section id="expertise" className="py-24 md:py-32 bg-[var(--paper-2)]/30">
+    <section id="expertise" className="py-28 md:py-40">
       <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
-        <div ref={headerRef}>
-          <p className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-4">
-            Expertise
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4">
-            What I work with
-          </h2>
-          <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl">
-            From machine learning pipelines to polished frontends — here&apos;s where I spend my focus.
-          </p>
-        </div>
+        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
+          Expertise
+        </p>
+        <TextReveal
+          text="What I work with"
+          className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4"
+          stagger={0.06}
+        />
+        <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl text-[15px]">
+          From machine learning pipelines to polished frontends — here&apos;s where I spend my focus.
+        </p>
 
         {/* Grid */}
-        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {expertiseAreas.map((area) => {
             const IconComponent = iconMap[area.icon];
             return (
               <div
                 key={area.title}
-                className="expertise-card group p-6 rounded-xl border border-[var(--line)] bg-[var(--paper)] transition-all hover:shadow-lg hover:border-[var(--sage)]/30"
+                className="expertise-card group p-6 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:bg-[var(--paper)] transition-all duration-500 hover:shadow-lg hover:border-[var(--sage)]/30 hover:-translate-y-1"
               >
                 <div
-                  className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-                  style={{ backgroundColor: `${area.color}15` }}
+                  className="w-12 h-12 rounded-lg flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundColor: `${area.color}12` }}
                 >
                   {IconComponent && (
-                    <IconComponent className="w-6 h-6" style={{ color: area.color }} />
+                    <IconComponent className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" style={{ color: area.color }} />
                   )}
                 </div>
                 <h3 className="text-lg font-semibold text-[var(--ink)] mb-2">{area.title}</h3>
