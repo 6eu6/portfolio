@@ -4,7 +4,7 @@ export interface SocialPlatform { name: string; description: string; metric: str
 
 export const navigation: NavItem[] = [
   { label: "Home", href: "#home", sectionId: "home" },
-  { label: "Projects", href: "#projects-all", sectionId: "projects" },
+  { label: "Projects", href: "#projects-all", sectionId: "projects-all" },
   { label: "About", href: "#about", sectionId: "about" },
   { label: "Blog", href: "#blog", sectionId: "blog" },
   { label: "Contact", href: "#contact", sectionId: "contact" }

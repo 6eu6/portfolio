@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Project } from '@/data/projects';
-import { projects } from '@/data/projects';
+import { projects as staticProjects } from '@/data/projects';
 
 import { SmoothScrollProvider } from '@/components/scroll/SmoothScroll';
 import Preloader from '@/components/infrastructure/Preloader';
@@ -20,14 +20,98 @@ import { ContactSection } from '@/components/sections/ContactSection';
 import { Footer } from '@/components/sections/Footer';
 import Marquee from '@/components/motion/Marquee';
 import HorizontalScroll from '@/components/motion/HorizontalScroll';
+import ProjectDetailDialog from '@/components/projects/ProjectDetailDialog';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* API project type (tags/features/outcomes come as JSON strings) */
+interface ApiProject {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  category: string;
+  description: string;
+  longDescription: string;
+  tags: string;
+  year: string;
+  status: string;
+  metric: string;
+  role: string;
+  team: string;
+  duration: string;
+  problem: string;
+  solution: string;
+  features: string;
+  outcomes: string;
+  lessons: string;
+  liveUrl: string;
+  sourceUrl: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function normalizeProject(p: ApiProject): Project {
+  const parse = (v: string): string[] => {
+    try { return JSON.parse(v); } catch { return []; }
+  };
+  return {
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    subtitle: p.subtitle || '',
+    category: p.category,
+    description: p.description || '',
+    longDescription: p.longDescription || '',
+    tags: parse(p.tags),
+    year: p.year || '',
+    status: p.status || 'In Progress',
+    metric: p.metric || '',
+    role: p.role || '',
+    team: p.team || '',
+    duration: p.duration || '',
+    problem: p.problem || '',
+    solution: p.solution || '',
+    process: '',
+    architecture: '',
+    features: parse(p.features),
+    outcomes: parse(p.outcomes),
+    lessons: p.lessons || '',
+    liveUrl: p.liveUrl || '#',
+    sourceUrl: p.sourceUrl || '#',
+    nextProject: '',
+  };
+}
+
 export default function Home() {
   const [loaded, setLoaded] = useState(false);
+  const [projects, setProjects] = useState<Project[]>(staticProjects);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isProjectOpen, setIsProjectOpen] = useState(false);
 
-  const handleProjectClick = useCallback((_p: Project) => {
-    // Future: open project detail modal
+  // Fetch projects from API on mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/projects?XTransformPort=3000');
+        if (res.ok && !cancelled) {
+          const data: ApiProject[] = await res.json();
+          if (data.length > 0) {
+            setProjects(data.map(normalizeProject));
+          }
+        }
+      } catch {
+        // Fallback to static projects
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleProjectClick = useCallback((p: Project) => {
+    setSelectedProject(p);
+    setIsProjectOpen(true);
   }, []);
 
   return (
@@ -62,7 +146,7 @@ export default function Home() {
             <AboutSection />
 
             {/* Horizontal Scroll Projects */}
-            <div className="py-16 md:py-24">
+            <div id="projects-all" className="py-16 md:py-24">
               <HorizontalScroll projects={projects} onProjectClick={handleProjectClick} />
             </div>
 
@@ -103,6 +187,16 @@ export default function Home() {
           </main>
 
           <Footer />
+
+          {/* Project Detail Dialog */}
+          <ProjectDetailDialog
+            project={selectedProject}
+            open={isProjectOpen}
+            onClose={() => {
+              setIsProjectOpen(false);
+              setSelectedProject(null);
+            }}
+          />
         </div>
       </SmoothScrollProvider>
     </>

@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { socialPlatforms } from '@/data/social';
+import { socialPlatforms as staticSocialPlatforms, type SocialPlatform } from '@/data/social';
 import {
   Github,
   Send,
@@ -29,6 +29,31 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 export default function SocialSection() {
   const gridRef = useRef<HTMLDivElement>(null);
   const countersAnimated = useRef(false);
+  const [socialPlatforms, setSocialPlatforms] = useState<SocialPlatform[]>(staticSocialPlatforms);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/socials?XTransformPort=3000');
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.length > 0) {
+            setSocialPlatforms(data.map((s: { name: string; description: string; metric: string; metricLabel: string; url: string; icon: string; color: string }) => ({
+              name: s.name,
+              description: s.description,
+              metric: s.metric,
+              metricLabel: s.metricLabel,
+              url: s.url,
+              icon: s.icon,
+              color: s.color,
+            })));
+          }
+        }
+      } catch { /* fallback to static */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const parseMetric = useCallback((metric: string): number => {
     const num = parseFloat(metric.replace(/[^0-9.]/g, ''));

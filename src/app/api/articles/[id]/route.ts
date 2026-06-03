@@ -38,6 +38,61 @@ export async function GET(
   }
 }
 
+// PUT /api/articles/[id] — update an article by ID
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const articleId = parseInt(id, 10);
+
+    if (isNaN(articleId)) {
+      return NextResponse.json(
+        { error: "Invalid article ID" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.article.findUnique({
+      where: { id: articleId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Article not found" },
+        { status: 404 }
+      );
+    }
+
+    const body = await request.json();
+    const { published, featured, title, subtitle, category, excerpt, content, tags, readTime } = body;
+
+    const article = await db.article.update({
+      where: { id: articleId },
+      data: {
+        ...(published !== undefined && { published }),
+        ...(featured !== undefined && { featured }),
+        ...(title && { title }),
+        ...(subtitle !== undefined && { subtitle }),
+        ...(category && { category }),
+        ...(excerpt !== undefined && { excerpt }),
+        ...(content !== undefined && { content }),
+        ...(tags !== undefined && { tags }),
+        ...(readTime !== undefined && { readTime }),
+      },
+    });
+
+    return NextResponse.json(article);
+  } catch (error) {
+    console.error("Error updating article:", error);
+    return NextResponse.json(
+      { error: "Failed to update article" },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/articles/[id] — delete an article by ID
 export async function DELETE(
   _request: NextRequest,
