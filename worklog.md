@@ -114,3 +114,30 @@ Work Log:
 Stage Summary:
 - Main page is now fully dynamic, pulling from database
 - Static data serves as fallback
+---
+Task ID: 1
+Agent: Main Agent
+Task: Set up Prisma Postgres (v7) for Vercel deployment
+
+Work Log:
+- Fetched Prisma v7 documentation for Prisma Postgres quickstart syntax
+- Upgraded from Prisma v6 (SQLite) to Prisma v7.8.0 (PostgreSQL)
+- Installed new deps: @prisma/adapter-pg, pg, dotenv, @types/pg, tsx (dev)
+- Linked existing Prisma Postgres database: db_cmpynk66n0op5fdvd5m2ozwm2
+- Rewrote prisma/schema.prisma for v7: provider=postgresql, generator=prisma-client with output=../generated/prisma
+- Created prisma.config.ts with manual .env loading (to handle bun cache issues)
+- Fixed SiteSetting model: changed @default("global") to @default(uuid())
+- Manually ran ALTER TABLE to set gen_random_uuid() default on SiteSetting.id
+- Created prisma/seed.ts with comprehensive seed data (admin, 2 articles, 2 projects, 4 socials, 1 interview, 4 settings)
+- Updated src/lib/db.ts with PrismaPg adapter and manual .env file loading
+- Created scripts/verify-prisma.ts verification script
+- Updated .gitignore (added generated/) and eslint.config.mjs (ignored generated/)
+- Removed old SQLite database (db/custom.db)
+- Verified all API endpoints work: /api/socials, /api/articles, /api/projects — all return 200 OK
+- Pushed to GitHub: https://github.com/6eu6/portfolio
+
+Stage Summary:
+- Database: Prisma Postgres connected and seeded (7 models)
+- All API routes confirmed working with PostgreSQL backend
+- .env with connection string NOT committed (gitignored)
+- Commit: cacc898 "feat: migrate to Prisma Postgres (v7) for Vercel deployment"
