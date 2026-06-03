@@ -45,6 +45,15 @@
 
 :root {
   --radius: 0.625rem;
+  --ink: oklch(0.145 0 0);
+  --paper: oklch(1 0 0);
+  --paper-2: oklch(0.97 0.005 100);
+  --line: oklch(0.88 0.005 100);
+  --sage: oklch(0.65 0.12 160);
+  --sky: oklch(0.68 0.1 230);
+  --lav: oklch(0.68 0.1 290);
+  --sand: oklch(0.72 0.08 80);
+  --rose: oklch(0.65 0.15 10);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
