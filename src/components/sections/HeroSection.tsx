@@ -4,17 +4,18 @@ import { useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { TextPlugin } from 'gsap/TextPlugin';
+
+gsap.registerPlugin(ScrollTrigger, TextPlugin);
 import { Button } from '@/components/ui/button';
 import { ArrowRight, FileText } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), { ssr: false });
 
 /* ------------------------------------------------------------------ */
 /*  Helper: build TextReveal-style DOM & return the animatable spans  */
 /* ------------------------------------------------------------------ */
-function buildRevealUnits(container: HTMLElement, text: string, stagger: number = 0.06) {
+function buildRevealUnits(container: HTMLElement, text: string) {
   container.innerHTML = text
     .split(' ')
     .map(
@@ -22,18 +23,20 @@ function buildRevealUnits(container: HTMLElement, text: string, stagger: number 
         `<span class="text-reveal-unit" style="display:inline-block;overflow:hidden;vertical-align:top"><span class="text-reveal-inner" style="display:inline-block;transform:translateY(110%)">${word}</span></span><span style="display:inline-block;width:0.3em">&nbsp;</span>`,
     )
     .join('');
-
-  const inners = container.querySelectorAll('.text-reveal-inner');
-  return inners;
+  return container.querySelectorAll('.text-reveal-inner');
 }
 
 /* ------------------------------------------------------------------ */
-/*  Static strings so we don't re-create on every render               */
+/*  Rotating words for the hero heading                                */
+/* ------------------------------------------------------------------ */
+const ROTATING_WORDS = ['calm', 'easy', 'simple', 'real', 'elegant', 'powerful'];
+
+/* ------------------------------------------------------------------ */
+/*  Static strings                                                    */
 /* ------------------------------------------------------------------ */
 const EYEBROW = 'Builder · Founder · Developer';
 const HEADING_LINE_1 = 'Building products';
 const HEADING_LINE_2A = 'that feel';
-const HEADING_LINE_2B = 'calm';
 const HEADING_LINE_3 = 'and work well';
 const SUBTITLE =
   'I design and engineer systems, products, and experiences where clarity and craft compound over time.';
@@ -52,18 +55,19 @@ export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  /* Refs for every animated element group */
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const heading1Ref = useRef<HTMLDivElement>(null);
   const heading2aRef = useRef<HTMLDivElement>(null);
-  const heading2bRef = useRef<HTMLDivElement>(null);
+  const wordRotatorRef = useRef<HTMLDivElement>(null);
+  const wordTextRef = useRef<HTMLSpanElement>(null);
   const heading3Ref = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
 
-  /* Counter value refs so the GSAP onUpdate can write to the DOM */
   const counterEls = useRef<(HTMLSpanElement | null)[]>([]);
+  const currentIndex = useRef(0);
+  const rotatorTlRef = useRef<gsap.core.Timeline | null>(null);
 
   const setCounterRef = useCallback(
     (index: number) => (el: HTMLSpanElement | null) => {
@@ -78,59 +82,48 @@ export default function HeroSection() {
     const eyebrow = eyebrowRef.current;
     const h1 = heading1Ref.current;
     const h2a = heading2aRef.current;
-    const h2b = heading2bRef.current;
+    const wordRotator = wordRotatorRef.current;
+    const wordText = wordTextRef.current;
     const h3 = heading3Ref.current;
     const subtitle = subtitleRef.current;
     const cta = ctaRef.current;
     const stats = statsRef.current;
 
-    if (!section || !content || !eyebrow || !h1 || !h2a || !h2b || !h3 || !subtitle || !cta || !stats) return;
+    if (!section || !content || !eyebrow || !h1 || !h2a || !wordRotator || !wordText || !h3 || !subtitle || !cta || !stats) return;
 
     /* ---------- Build reveal units ---------- */
-    const eyebrowInners = buildRevealUnits(eyebrow, EYEBROW, 0.08);
-    const h1Inners = buildRevealUnits(h1, HEADING_LINE_1, 0.04);
-    const h2aInners = buildRevealUnits(h2a, HEADING_LINE_2A, 0.05);
-    const h2bInners = buildRevealUnits(h2b, HEADING_LINE_2B, 0.06);
-    const h3Inners = buildRevealUnits(h3, HEADING_LINE_3, 0.04);
-    const subInners = buildRevealUnits(subtitle, SUBTITLE, 0.02);
+    const eyebrowInners = buildRevealUnits(eyebrow, EYEBROW);
+    const h1Inners = buildRevealUnits(h1, HEADING_LINE_1);
+    const h2aInners = buildRevealUnits(h2a, HEADING_LINE_2A);
+    const h3Inners = buildRevealUnits(h3, HEADING_LINE_3);
+    const subInners = buildRevealUnits(subtitle, SUBTITLE);
 
-    /* ---------- Set initial states ---------- */
+    /* ---------- Initial states ---------- */
     gsap.set(eyebrow, { opacity: 0, y: 20 });
+    gsap.set(wordRotator, { opacity: 0, y: 30 });
     gsap.set([cta, stats], { opacity: 0, y: 30 });
 
-    /* Counter initial text */
     counterEls.current.forEach((el) => {
       if (el) el.textContent = '0';
     });
 
     /* ================================================================ */
-    /*  ENTRANCE TIMELINE (time-based, fires after preloader ~2.3 s)    */
+    /*  ENTRANCE TIMELINE                                                */
     /* ================================================================ */
     const entranceTl = gsap.timeline({ delay: 2.3 });
 
-    /* 0.00s — Eyebrow fades up + words reveal simultaneously */
     entranceTl.to(eyebrow, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0);
     entranceTl.to(eyebrowInners, { y: '0%', duration: 0.7, stagger: 0.08, ease: 'power3.out' }, 0);
 
-    /* 0.15s — Heading line 1 */
     entranceTl.to(h1Inners, { y: '0%', duration: 0.7, stagger: 0.04, ease: 'power3.out' }, 0.15);
-
-    /* +0.05s gap — Heading line 2a */
     entranceTl.to(h2aInners, { y: '0%', duration: 0.7, stagger: 0.05, ease: 'power3.out' }, 0.35);
 
-    /* +0.05s gap — Heading line 2b ("calm") */
-    entranceTl.to(h2bInners, { y: '0%', duration: 0.7, stagger: 0.06, ease: 'power3.out' }, 0.45);
+    /* Word rotator container fades in */
+    entranceTl.to(wordRotator, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.45);
 
-    /* +0.05s gap — Heading line 3 */
     entranceTl.to(h3Inners, { y: '0%', duration: 0.7, stagger: 0.04, ease: 'power3.out' }, 0.55);
-
-    /* 0.70s — Subtitle */
     entranceTl.to(subInners, { y: '0%', duration: 0.7, stagger: 0.02, ease: 'power3.out' }, 0.7);
-
-    /* 0.90s — CTA buttons */
     entranceTl.to(cta, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.9);
-
-    /* 1.10s — Stats strip + counter animations */
     entranceTl.to(stats, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 1.1);
 
     STATS.forEach((stat, i) => {
@@ -152,7 +145,53 @@ export default function HeroSection() {
     });
 
     /* ================================================================ */
-    /*  SCROLL-AWAY EFFECT (scrub-based, bidirectional)                  */
+    /*  WORD ROTATOR LOOP — starts after entrance finishes              */
+    /* ================================================================ */
+    const timers: NodeJS.Timeout[] = [];
+
+    const startRotator = () => {
+      const rotateWord = () => {
+        const current = currentIndex.current;
+        const next = (current + 1) % ROTATING_WORDS.length;
+        currentIndex.current = next;
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            rotatorTlRef.current = null;
+            timers.push(setTimeout(rotateWord, 2500));
+          },
+        });
+
+        tl.to(wordText, {
+          y: -40,
+          opacity: 0,
+          duration: 0.35,
+          ease: 'power2.in',
+        });
+
+        tl.set(wordText, {
+          y: 40,
+          text: ROTATING_WORDS[next],
+        });
+
+        tl.to(wordText, {
+          y: 0,
+          opacity: 1,
+          duration: 0.45,
+          ease: 'power3.out',
+        });
+
+        rotatorTlRef.current = tl;
+      };
+
+      // Start rotating after entrance + 2s pause
+      timers.push(setTimeout(rotateWord, 2000));
+    };
+
+    startRotator();
+
+    /* ================================================================ */
+    /*  SCROLL-AWAY EFFECT                                              */
     /* ================================================================ */
     const scrollTl = gsap.timeline({
       scrollTrigger: {
@@ -169,7 +208,6 @@ export default function HeroSection() {
       { y: -150, opacity: 0, scale: 0.95, ease: 'none' },
     );
 
-    /* Stats parallax at a different speed */
     gsap.to(stats, {
       y: -60,
       ease: 'none',
@@ -185,10 +223,12 @@ export default function HeroSection() {
     return () => {
       entranceTl.kill();
       scrollTl.kill();
+      rotatorTlRef.current?.kill();
+      timers.forEach(clearTimeout);
       ScrollTrigger.getAll().forEach((st) => {
         if (st.trigger === section) st.kill();
       });
-      gsap.set([eyebrow, cta, stats], { opacity: 1, y: 0, clearProps: 'all' });
+      gsap.set([eyebrow, wordRotator, cta, stats], { opacity: 1, y: 0, clearProps: 'all' });
     };
   }, []);
 
@@ -219,16 +259,25 @@ export default function HeroSection() {
             className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)]"
           />
 
-          {/* Line 2: "that feel" + "calm" */}
+          {/* Line 2: "that feel" + rotating gradient word */}
           <div className="flex flex-wrap justify-center mt-2">
             <div
               ref={heading2aRef}
               className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)]"
             />
+            {/* Rotating word with gradient — gradient applied DIRECTLY to the text span */}
             <div
-              ref={heading2bRef}
-              className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight bg-gradient-to-r from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] bg-clip-text text-transparent"
-            />
+              ref={wordRotatorRef}
+              className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight inline-block overflow-hidden"
+              style={{ minWidth: '2.5ch' }}
+            >
+              <span
+                ref={wordTextRef}
+                className="inline-block bg-gradient-to-r from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] bg-clip-text text-transparent"
+              >
+                calm
+              </span>
+            </div>
           </div>
 
           {/* Line 3: "and work well" */}

@@ -30,3 +30,19 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Article {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  title     String
+  subtitle  String
+  content   String
+  category  String   @default("Product")
+  excerpt   String
+  readTime  String   @default("5 min")
+  featured  Boolean  @default(false)
+  published Boolean  @default(false)
+  tags      String   @default("[]")  // JSON array string
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

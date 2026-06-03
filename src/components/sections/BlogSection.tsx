@@ -1,16 +1,42 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { articles, getFeaturedArticle, type Article } from '@/data/articles';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Clock, PenLine } from 'lucide-react';
 import TextReveal from '@/components/motion/TextReveal';
+import ArticleDialog from '@/components/blog/ArticleDialog';
+import WriteArticleDialog from '@/components/blog/WriteArticleDialog';
+import type { ArticleDialogData } from '@/components/blog/ArticleDialog';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function BlogSection({ onArticleClick }: { onArticleClick: (a: Article) => void }) {
+/* ------------------------------------------------------------------ */
+/*  API Article type (what the DB returns)                              */
+/* ------------------------------------------------------------------ */
+
+interface ApiArticle {
+  id: number;
+  title: string;
+  subtitle: string;
+  content: string;
+  category: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  featured: boolean;
+  published: boolean;
+  tags: string[];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Blog Section                                                       */
+/* ------------------------------------------------------------------ */
+
+export default function BlogSection() {
   const featuredRef = useRef<HTMLDivElement>(null);
   const featuredBgRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -18,6 +44,51 @@ export default function BlogSection({ onArticleClick }: { onArticleClick: (a: Ar
   const featured = getFeaturedArticle();
   const otherArticles = articles.filter((a) => !a.featured);
 
+  // API articles state
+  const [apiArticles, setApiArticles] = useState<ApiArticle[]>([]);
+
+  // Dialog state
+  const [selectedArticle, setSelectedArticle] = useState<ArticleDialogData | null>(null);
+  const [isReading, setIsReading] = useState(false);
+  const [isWriting, setIsWriting] = useState(false);
+
+  // Fetch API articles on mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/articles?XTransformPort=3000');
+        if (res.ok && !cancelled) {
+          const data: ApiArticle[] = await res.json();
+          setApiArticles(data);
+        }
+      } catch {
+        // Silently ignore — static articles still work
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Re-fetch articles (called after publishing)
+  const refreshArticles = async () => {
+    try {
+      const res = await fetch('/api/articles?XTransformPort=3000');
+      if (res.ok) {
+        const data: ApiArticle[] = await res.json();
+        setApiArticles(data);
+      }
+    } catch {
+      // Silently ignore
+    }
+  };
+
+  // Handle article click → open reading dialog
+  const handleArticleClick = (a: Article | ApiArticle) => {
+    setSelectedArticle(a as ArticleDialogData);
+    setIsReading(true);
+  };
+
+  // GSAP animations
   useEffect(() => {
     const section = sectionRef.current;
     const feat = featuredRef.current;
@@ -106,23 +177,36 @@ export default function BlogSection({ onArticleClick }: { onArticleClick: (a: Ar
     <section ref={sectionRef} id="blog" className="py-28 md:py-40">
       <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
-          Blog
-        </p>
-        <TextReveal
-          text="Writing & thinking"
-          className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4"
-          stagger={0.06}
-        />
-        <p className="text-[var(--muted-foreground)] mb-16 max-w-2xl text-[15px]">
-          Notes on product building, system design, AI engineering, and the craft of making things that last.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-16">
+          <div>
+            <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
+              Blog
+            </p>
+            <TextReveal
+              text="Writing & thinking"
+              className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4"
+              stagger={0.06}
+            />
+            <p className="text-[var(--muted-foreground)] max-w-2xl text-[15px]">
+              Notes on product building, system design, AI engineering, and the craft of making things that last.
+            </p>
+          </div>
+          <Button
+            onClick={() => setIsWriting(true)}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 shrink-0 border-[var(--line)] hover:border-[var(--sage)]/40 hover:text-[var(--sage)] transition-colors rounded-lg"
+          >
+            <PenLine className="w-4 h-4" />
+            Write
+          </Button>
+        </div>
 
         {/* Featured Article */}
         {featured && (
           <div
             ref={featuredRef}
-            onClick={() => onArticleClick(featured)}
+            onClick={() => handleArticleClick(featured)}
             className="group cursor-pointer mb-12 relative overflow-hidden rounded-2xl border border-[var(--line)] hover:border-[var(--sage)]/30 transition-all duration-500"
             style={{ transformStyle: 'preserve-3d' }}
           >
@@ -162,12 +246,13 @@ export default function BlogSection({ onArticleClick }: { onArticleClick: (a: Ar
           </div>
         )}
 
-        {/* Articles Grid */}
+        {/* Articles Grid — Static + API articles */}
         <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {/* Static articles */}
           {otherArticles.map((article) => (
             <div
               key={article.id}
-              onClick={() => onArticleClick(article)}
+              onClick={() => handleArticleClick(article)}
               className="blog-card group cursor-pointer p-5 sm:p-6 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:border-[var(--sage)]/30 transition-all duration-500"
               style={{
                 transformStyle: 'preserve-3d',
@@ -208,8 +293,76 @@ export default function BlogSection({ onArticleClick }: { onArticleClick: (a: Ar
               </p>
             </div>
           ))}
+
+          {/* API articles */}
+          {apiArticles.map((article) => (
+            <div
+              key={`api-${article.id}`}
+              onClick={() => handleArticleClick(article)}
+              className="blog-card group cursor-pointer p-5 sm:p-6 rounded-xl border border-[var(--sage)]/20 bg-[var(--sage)]/[0.02] hover:border-[var(--sage)]/40 transition-all duration-500"
+              style={{
+                transformStyle: 'preserve-3d',
+                transformPerspective: 800,
+              }}
+              onMouseEnter={(e) => {
+                gsap.to(e.currentTarget, {
+                  y: -4,
+                  boxShadow: '0 12px 24px -4px rgba(0,0,0,0.08), 0 4px 8px -2px rgba(0,0,0,0.04)',
+                  duration: 0.35,
+                  ease: 'power2.out',
+                });
+              }}
+              onMouseLeave={(e) => {
+                gsap.to(e.currentTarget, {
+                  y: 0,
+                  boxShadow: '0 0px 0px 0px rgba(0,0,0,0)',
+                  duration: 0.35,
+                  ease: 'power2.out',
+                });
+              }}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Badge variant="outline" className="text-xs border-[var(--sage)]/30 text-[var(--sage)]">
+                  {article.category}
+                </Badge>
+                <span className="text-xs text-[var(--muted-foreground)] flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {article.readTime}
+                </span>
+                <span className="text-xs text-[var(--sage)]" title="Published via API">
+                  ★
+                </span>
+              </div>
+              <h3 className="text-lg font-semibold text-[var(--ink)] mb-1 group-hover:text-[var(--sage)] transition-colors duration-300">
+                {article.title}
+              </h3>
+              {article.subtitle && (
+                <p className="text-sm text-[var(--muted-foreground)] mb-3">{article.subtitle}</p>
+              )}
+              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-2">
+                {article.excerpt}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Article Reading Dialog */}
+      <ArticleDialog
+        article={selectedArticle}
+        open={isReading}
+        onClose={() => {
+          setIsReading(false);
+          setSelectedArticle(null);
+        }}
+      />
+
+      {/* Article Writing Dialog */}
+      <WriteArticleDialog
+        open={isWriting}
+        onClose={() => setIsWriting(false)}
+        onPublished={() => refreshArticles()}
+      />
     </section>
   );
 }
