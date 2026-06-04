@@ -14,9 +14,20 @@ import type { ArticleDialogData } from '@/components/blog/ArticleDialog';
 gsap.registerPlugin(ScrollTrigger);
 
 /* ------------------------------------------------------------------ */
-/*  API Article type (what the DB returns)                              */
+/*  Category → accent color mapping                                    */
 /* ------------------------------------------------------------------ */
+const categoryAccent: Record<string, { color: string; bg: string; glow: string }> = {
+  AI:          { color: 'var(--sage)', bg: 'oklch(0.62 0.14 160 / 6%)',  glow: 'oklch(0.62 0.14 160 / 15%)' },
+  Product:      { color: 'var(--sand)', bg: 'oklch(0.70 0.09 80 / 6%)',   glow: 'oklch(0.70 0.09 80 / 15%)' },
+  Engineering:  { color: 'var(--sky)',  bg: 'oklch(0.65 0.12 230 / 6%)',  glow: 'oklch(0.65 0.12 230 / 15%)' },
+  Design:       { color: 'var(--lav)',  bg: 'oklch(0.65 0.12 290 / 6%)',  glow: 'oklch(0.65 0.12 290 / 15%)' },
+  Strategy:     { color: 'var(--rose)', bg: 'oklch(0.62 0.16 10 / 6%)',   glow: 'oklch(0.62 0.16 10 / 15%)' },
+};
+const defaultAccent = { color: 'var(--muted-foreground)', bg: 'oklch(0.50 0 0 / 5%)', glow: 'oklch(0.50 0 0 / 10%)' };
 
+/* ------------------------------------------------------------------ */
+/*  API Article type                                                   */
+/* ------------------------------------------------------------------ */
 interface ApiArticle {
   id: number;
   title: string;
@@ -43,37 +54,30 @@ export default function BlogSection() {
   const featured = getFeaturedArticle();
   const otherArticles = articles.filter((a) => !a.featured);
 
-  // API articles state
   const [apiArticles, setApiArticles] = useState<ApiArticle[]>([]);
-
-  // Dialog state
   const [selectedArticle, setSelectedArticle] = useState<ArticleDialogData | null>(null);
   const [isReading, setIsReading] = useState(false);
 
-  // Fetch API articles on mount
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch('/api/articles?XTransformPort=3000');
+        const res = await fetch('/api/articles');
         if (res.ok && !cancelled) {
           const data: ApiArticle[] = await res.json();
           setApiArticles(data);
         }
-      } catch {
-        // Silently ignore — static articles still work
-      }
+      } catch { /* fallback */ }
     })();
     return () => { cancelled = true; };
   }, []);
 
-  // Handle article click → open reading dialog
   const handleArticleClick = (a: Article | ApiArticle) => {
     setSelectedArticle(a as ArticleDialogData);
     setIsReading(true);
   };
 
-  // GSAP animations
+  /* ── GSAP animations ────────────────────────────────────────────── */
   useEffect(() => {
     const section = sectionRef.current;
     const feat = featuredRef.current;
@@ -83,59 +87,34 @@ export default function BlogSection() {
     const tweens: gsap.core.Tween[] = [];
     const triggers: ScrollTrigger[] = [];
 
-    // Parallax gradient background on featured article
     if (featBg && feat) {
-      const parallaxTween = gsap.to(featBg, {
+      const t = gsap.to(featBg, {
         yPercent: 15,
         ease: 'none',
-        scrollTrigger: {
-          trigger: feat,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-        },
+        scrollTrigger: { trigger: feat, start: 'top bottom', end: 'bottom top', scrub: 1 },
       });
-      tweens.push(parallaxTween);
+      tweens.push(t);
     }
 
-    // Featured article entrance: scale(0.98) → scale(1)
     if (feat) {
-      gsap.set(feat, { opacity: 0, scale: 0.98, y: 30 });
+      gsap.set(feat, { opacity: 0, y: 30 });
       const st = ScrollTrigger.create({
-        trigger: feat,
-        start: 'top 85%',
-        once: true,
+        trigger: feat, start: 'top 85%', once: true,
         onEnter: () => {
-          const t = gsap.to(feat, {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 0.9,
-            ease: 'power3.out',
-          });
+          const t = gsap.to(feat, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
           tweens.push(t);
         },
       });
       triggers.push(st);
     }
 
-    // Blog cards: staggered 3D entrance with rotateX(3deg)
     if (grid) {
       const cards = grid.querySelectorAll('.blog-card');
-      gsap.set(cards, { opacity: 0, y: 50, rotateX: 3, transformPerspective: 800 });
+      gsap.set(cards, { opacity: 0, y: 40, rotateX: 2, transformPerspective: 800 });
       const st = ScrollTrigger.create({
-        trigger: grid,
-        start: 'top 85%',
-        once: true,
+        trigger: grid, start: 'top 85%', once: true,
         onEnter: () => {
-          const t = gsap.to(cards, {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            duration: 0.7,
-            stagger: 0.1,
-            ease: 'power3.out',
-          });
+          const t = gsap.to(cards, { opacity: 1, y: 0, rotateX: 0, duration: 0.7, stagger: 0.08, ease: 'power3.out' });
           tweens.push(t);
         },
       });
@@ -145,13 +124,8 @@ export default function BlogSection() {
     return () => {
       tweens.forEach((t) => t.kill());
       triggers.forEach((st) => st.kill());
-      // Also kill any remaining ScrollTriggers associated with our elements
       ScrollTrigger.getAll().forEach((st) => {
-        if (
-          (feat && st.trigger === feat) ||
-          (grid && st.trigger === grid) ||
-          (featBg && st.trigger === featBg)
-        ) {
+        if ((feat && st.trigger === feat) || (grid && st.trigger === grid) || (featBg && st.trigger === featBg)) {
           st.kill();
         }
       });
@@ -189,25 +163,28 @@ export default function BlogSection() {
           </Button>
         </div>
 
-        {/* Featured Article */}
+        {/* Featured Article — large card with accent line */}
         {featured && (
           <div
             ref={featuredRef}
             onClick={() => handleArticleClick(featured)}
-            className="group cursor-pointer mb-12 relative overflow-hidden rounded-2xl border border-[var(--line)] border-l-[3px] border-l-[var(--sage)] hover:border-[var(--sage)]/30 transition-all duration-500"
+            className="group cursor-pointer mb-12 relative overflow-hidden rounded-2xl border border-[var(--line)] hover:border-[var(--sage)]/30 transition-all duration-500"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            {/* Decorative gradient background (parallax) */}
+            {/* Parallax gradient */}
             <div
               ref={featuredBgRef}
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'linear-gradient(135deg, rgba(142,181,145,0.08) 0%, rgba(180,167,210,0.08) 40%, rgba(100,149,170,0.08) 100%)',
+                background: 'linear-gradient(135deg, oklch(0.62 0.14 160 / 6%) 0%, oklch(0.65 0.12 290 / 4%) 50%, oklch(0.65 0.12 230 / 4%) 100%)',
               }}
             />
-            <div className="relative z-10 p-6 sm:p-8 md:p-10">
+            {/* Accent left line */}
+            <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] rounded-l-2xl" />
+
+            <div className="relative z-10 p-6 sm:p-8 md:p-10 pl-8 sm:pl-11 md:pl-14">
               <div className="flex flex-wrap items-center gap-3 mb-4">
-                <Badge variant="secondary" className="text-xs bg-[var(--sage)]/5">
+                <Badge variant="secondary" className="text-xs bg-[var(--sage)]/8 text-[var(--sage)]">
                   Featured
                 </Badge>
                 <Badge variant="outline" className="text-xs">
@@ -225,124 +202,250 @@ export default function BlogSection() {
                 {featured.excerpt}
               </p>
               <div className="flex items-center gap-2 text-sm text-[var(--sage)] font-medium">
-                Read article <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Read article <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
               </div>
             </div>
-            {/* Hover shadow overlay */}
-            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none shadow-[0_16px_40px_-8px_rgba(0,0,0,0.10),0_4px_12px_-2px_rgba(0,0,0,0.05)]" />
           </div>
         )}
 
-        {/* Articles Grid — Static + API articles */}
+        {/* Articles Grid */}
         <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {/* Static articles */}
-          {otherArticles.map((article) => (
-            <div
-              key={article.id}
-              onClick={() => handleArticleClick(article)}
-              className="blog-card group cursor-pointer p-5 sm:p-6 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:border-[var(--sage)]/30 transition-all duration-500"
-              style={{
-                transformStyle: 'preserve-3d',
-                transformPerspective: 800,
-              }}
-              onMouseEnter={(e) => {
-                gsap.to(e.currentTarget, {
-                  y: -6,
-                  boxShadow: '0 16px 40px -8px rgba(0,0,0,0.10), 0 4px 12px -2px rgba(0,0,0,0.05)',
-                  duration: 0.35,
-                  ease: 'power2.out',
-                });
-              }}
-              onMouseLeave={(e) => {
-                gsap.to(e.currentTarget, {
-                  y: 0,
-                  boxShadow: '0 0px 0px 0px rgba(0,0,0,0)',
-                  duration: 0.35,
-                  ease: 'power2.out',
-                });
-              }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <Badge variant="outline" className="text-xs">
-                  {article.category}
-                </Badge>
-                <span className="text-xs text-[var(--muted-foreground)] flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {article.readTime}
-                </span>
-              </div>
-              <h3 className="text-lg font-semibold text-[var(--ink)] mb-1 group-hover:text-[var(--sage)] transition-colors duration-300">
-                {article.title}
-              </h3>
-              <p className="text-sm text-[var(--muted-foreground)] mb-3">{article.subtitle}</p>
-              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-2">
-                {article.excerpt}
-              </p>
-            </div>
-          ))}
+          {otherArticles.map((article, idx) => {
+            const accent = categoryAccent[article.category] || defaultAccent;
+            return (
+              <ArticleCard
+                key={article.id}
+                article={article}
+                accent={accent}
+                index={idx}
+                onClick={() => handleArticleClick(article)}
+                isApi={false}
+              />
+            );
+          })}
 
           {/* API articles */}
-          {apiArticles.map((article) => (
-            <div
-              key={`api-${article.id}`}
-              onClick={() => handleArticleClick(article)}
-              className="blog-card group cursor-pointer p-5 sm:p-6 rounded-xl border border-[var(--sage)]/20 border-l-[2px] border-l-[var(--sage)]/30 bg-[var(--sage)]/[0.02] hover:border-[var(--sage)]/40 transition-all duration-500"
-              style={{
-                transformStyle: 'preserve-3d',
-                transformPerspective: 800,
-              }}
-              onMouseEnter={(e) => {
-                gsap.to(e.currentTarget, {
-                  y: -6,
-                  boxShadow: '0 16px 40px -8px rgba(0,0,0,0.10), 0 4px 12px -2px rgba(0,0,0,0.05)',
-                  duration: 0.35,
-                  ease: 'power2.out',
-                });
-              }}
-              onMouseLeave={(e) => {
-                gsap.to(e.currentTarget, {
-                  y: 0,
-                  boxShadow: '0 0px 0px 0px rgba(0,0,0,0)',
-                  duration: 0.35,
-                  ease: 'power2.out',
-                });
-              }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <Badge variant="outline" className="text-xs border-[var(--sage)]/30 text-[var(--sage)]">
-                  {article.category}
-                </Badge>
-                <span className="text-xs text-[var(--muted-foreground)] flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {article.readTime}
-                </span>
-
-              </div>
-              <h3 className="text-lg font-semibold text-[var(--ink)] mb-1 group-hover:text-[var(--sage)] transition-colors duration-300">
-                {article.title}
-              </h3>
-              {article.subtitle && (
-                <p className="text-sm text-[var(--muted-foreground)] mb-3">{article.subtitle}</p>
-              )}
-              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-2">
-                {article.excerpt}
-              </p>
-            </div>
-          ))}
+          {apiArticles.map((article, idx) => {
+            const accent = categoryAccent[article.category] || defaultAccent;
+            return (
+              <ArticleCard
+                key={`api-${article.id}`}
+                article={article}
+                accent={accent}
+                index={idx + otherArticles.length}
+                onClick={() => handleArticleClick(article)}
+                isApi={true}
+              />
+            );
+          })}
         </div>
       </div>
 
-      {/* Article Reading Dialog */}
+      {/* Article Dialog */}
       <ArticleDialog
         article={selectedArticle}
         open={isReading}
-        onClose={() => {
-          setIsReading(false);
-          setSelectedArticle(null);
+        onClose={() => { setIsReading(false); setSelectedArticle(null); }}
+      />
+    </section>
+  );
+}
+
+/* ================================================================== */
+/*  Article Card — a reusable creative card component                    */
+/* ================================================================== */
+
+interface ArticleCardProps {
+  article: Article | ApiArticle;
+  accent: { color: string; bg: string; glow: string };
+  index: number;
+  onClick: () => void;
+  isApi: boolean;
+}
+
+function ArticleCard({ article, accent, index, onClick, isApi }: ArticleCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const numberRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const line = lineRef.current;
+    const num = numberRef.current;
+
+    const handleEnter = () => {
+      // Top accent line — expands from center
+      if (line) {
+        gsap.to(line, {
+          scaleX: 1,
+          duration: 0.5,
+          ease: 'power3.out',
+        });
+      }
+      // Card lift + shadow
+      gsap.to(card, {
+        y: -8,
+        boxShadow: `0 20px 50px -12px ${accent.glow}`,
+        duration: 0.4,
+        ease: 'power3.out',
+      });
+      // Number fades in
+      if (num) {
+        gsap.to(num, {
+          opacity: 1,
+          y: 0,
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      }
+    };
+
+    const handleLeave = () => {
+      if (line) {
+        gsap.to(line, {
+          scaleX: 0,
+          duration: 0.4,
+          ease: 'power3.in',
+        });
+      }
+      gsap.to(card, {
+        y: 0,
+        boxShadow: '0 0px 0px 0px rgba(0,0,0,0)',
+        duration: 0.4,
+        ease: 'power3.out',
+      });
+      if (num) {
+        gsap.to(num, {
+          opacity: 0,
+          y: 4,
+          duration: 0.25,
+          ease: 'power2.in',
+        });
+      }
+    };
+
+    card.addEventListener('mouseenter', handleEnter);
+    card.addEventListener('mouseleave', handleLeave);
+    return () => {
+      card.removeEventListener('mouseenter', handleEnter);
+      card.removeEventListener('mouseleave', handleLeave);
+    };
+  }, [accent.glow]);
+
+  const title = article.title;
+  const subtitle = 'subtitle' in article ? article.subtitle : '';
+  const excerpt = article.excerpt;
+  const category = article.category;
+  const readTime = article.readTime;
+  const tags = article.tags;
+
+  return (
+    <div
+      ref={cardRef}
+      onClick={onClick}
+      className={`blog-card group relative cursor-pointer rounded-xl border transition-all duration-300 ${
+        isApi
+          ? 'border-[var(--line)] bg-[var(--paper)]'
+          : 'border-[var(--line)] bg-[var(--paper)]'
+      }`}
+      style={{
+        transformStyle: 'preserve-3d',
+        transformPerspective: 800,
+      }}
+    >
+      {/* ── Top accent line (animated) ────────────────────────────── */}
+      <div className="absolute top-0 left-4 right-4 h-[2px] z-20">
+        <div
+          ref={lineRef}
+          className="h-full rounded-full origin-left"
+          style={{
+            transform: 'scaleX(0)',
+            background: `linear-gradient(90deg, ${accent.color}, transparent)`,
+          }}
+        />
+      </div>
+
+      {/* ── Subtle background glow on hover ───────────────────────── */}
+      <div
+        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse 60% 50% at 50% 0%, ${accent.bg}, transparent)`,
         }}
       />
 
+      {/* ── Content ──────────────────────────────────────────────── */}
+      <div className="relative z-10 p-5 sm:p-6">
+        {/* Top row: category + time */}
+        <div className="flex items-center gap-2.5 mb-4">
+          <span
+            className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-md"
+            style={{
+              color: accent.color,
+              backgroundColor: accent.bg,
+            }}
+          >
+            {category}
+          </span>
+          <span className="text-[11px] text-[var(--muted-foreground)] flex items-center gap-1 ml-auto">
+            <Clock className="w-3 h-3" />
+            {readTime}
+          </span>
+        </div>
 
-    </section>
+        {/* Title */}
+        <h3 className="text-[17px] font-semibold text-[var(--ink)] mb-1.5 leading-snug group-hover:text-[var(--ink)] transition-colors duration-300">
+          {title}
+        </h3>
+
+        {/* Subtitle */}
+        {subtitle && (
+          <p className="text-[13px] text-[var(--muted-foreground)]/70 mb-3 leading-snug">
+            {subtitle}
+          </p>
+        )}
+
+        {/* Excerpt */}
+        <p className="text-[12px] text-[var(--muted-foreground)]/60 leading-relaxed line-clamp-2 mb-4">
+          {excerpt}
+        </p>
+
+        {/* Bottom row: tags + read link */}
+        <div className="flex items-center justify-between pt-3.5 border-t border-[var(--line)]/60">
+          <div className="flex gap-1.5 overflow-hidden">
+            {Array.isArray(tags) && tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--paper-2)] text-[var(--muted-foreground)]/70"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Read indicator */}
+          <span className="flex items-center gap-1.5 text-[11px] font-medium transition-all duration-300"
+            style={{ color: accent.color }}
+          >
+            Read
+            <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+          </span>
+        </div>
+
+        {/* ── Floating article number (appears on hover) ─────────── */}
+        <span
+          ref={numberRef}
+          className="absolute -top-2 -right-1 text-[11px] font-bold tabular-nums opacity-0"
+          style={{
+            transform: 'translateY(4px)',
+            color: accent.color,
+          }}
+        >
+          {String(index + 1).padStart(2, '0')}
+        </span>
+      </div>
+    </div>
   );
 }
