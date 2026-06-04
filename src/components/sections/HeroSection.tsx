@@ -7,7 +7,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
 
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
-import { ArrowRight } from 'lucide-react';
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), { ssr: false });
 
@@ -48,7 +47,6 @@ export default function HeroSection() {
   const wordTextRef = useRef<HTMLSpanElement>(null);
   const heading3Ref = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
 
   const counterEls = useRef<(HTMLSpanElement | null)[]>([]);
@@ -72,10 +70,9 @@ export default function HeroSection() {
     const wordText = wordTextRef.current;
     const h3 = heading3Ref.current;
     const subtitle = subtitleRef.current;
-    const cta = ctaRef.current;
     const stats = statsRef.current;
 
-    if (!section || !content || !eyebrow || !h1 || !h2a || !wordRotator || !wordText || !h3 || !subtitle || !cta || !stats) return;
+    if (!section || !content || !eyebrow || !h1 || !h2a || !wordRotator || !wordText || !h3 || !subtitle || !stats) return;
 
     const eyebrowInners = buildRevealUnits(eyebrow, EYEBROW);
     const h1Inners = buildRevealUnits(h1, HEADING_LINE_1);
@@ -85,7 +82,7 @@ export default function HeroSection() {
 
     gsap.set(eyebrow, { opacity: 0, y: 20 });
     gsap.set(wordRotator, { opacity: 0, y: 30 });
-    gsap.set([cta, stats], { opacity: 0, y: 30 });
+    gsap.set(stats, { opacity: 0, y: 30 });
 
     counterEls.current.forEach((el) => {
       if (el) el.textContent = '0';
@@ -101,7 +98,7 @@ export default function HeroSection() {
     entranceTl.to(wordRotator, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.45);
     entranceTl.to(h3Inners, { y: '0%', duration: 0.7, stagger: 0.04, ease: 'power3.out' }, 0.55);
     entranceTl.to(subInners, { y: '0%', duration: 0.7, stagger: 0.02, ease: 'power3.out' }, 0.7);
-    entranceTl.to(cta, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.9);
+    
     entranceTl.to(stats, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 1.1);
 
     STATS.forEach((stat, i) => {
@@ -172,7 +169,7 @@ export default function HeroSection() {
       ScrollTrigger.getAll().forEach((st) => {
         if (st.trigger === section) st.kill();
       });
-      gsap.set([eyebrow, wordRotator, cta, stats], { opacity: 1, y: 0, clearProps: 'all' });
+      gsap.set([eyebrow, wordRotator, stats], { opacity: 1, y: 0, clearProps: 'all' });
     };
   }, []);
 
@@ -221,16 +218,7 @@ export default function HeroSection() {
         {/* Subtitle */}
         <div ref={subtitleRef} className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mb-12 leading-relaxed" />
 
-        {/* CTA — single clean link */}
-        <div ref={ctaRef} className="flex justify-center">
-          <a
-            href="#projects-all"
-            className="group inline-flex items-center gap-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--sage)] transition-colors duration-300"
-          >
-            See my work
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-300" />
-          </a>
-        </div>
+
 
         {/* Stats */}
         <div ref={statsRef} className="mt-20 md:mt-28 flex flex-wrap justify-center gap-10 md:gap-20">

@@ -128,17 +128,17 @@ export default function Home() {
 
             {/* Marquee divider — light */}
             <div className="py-6 sm:py-8 border-y border-[var(--line)] overflow-hidden">
-              <Marquee speed={40} className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[var(--ink)]/[0.08]">
+              <Marquee speed={40} className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[var(--ink)]/[0.10]">
                 <span className="mx-6 sm:mx-8">Products</span>
-                <span className="text-[var(--sage)]/30 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sage)]/35 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">Systems</span>
-                <span className="text-[var(--sky)]/30 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sky)]/35 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">Design</span>
-                <span className="text-[var(--lav)]/30 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--lav)]/35 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">Engineering</span>
-                <span className="text-[var(--sage)]/30 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sage)]/35 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">AI</span>
-                <span className="text-[var(--sky)]/30 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sky)]/35 mx-3 sm:mx-4">◆</span>
               </Marquee>
             </div>
 
@@ -152,19 +152,19 @@ export default function Home() {
 
             {/* Marquee divider — dark */}
             <div className="py-5 sm:py-6 border-y border-white/[0.08] overflow-hidden bg-[var(--ink)]">
-              <Marquee speed={35} direction="right" className="text-[11px] sm:text-[13px] tracking-[0.2em] sm:tracking-[0.3em] uppercase text-white/[0.14] font-medium">
+              <Marquee speed={35} direction="right" className="text-[11px] sm:text-[13px] tracking-[0.2em] sm:tracking-[0.3em] uppercase text-white/[0.18] font-medium">
                 <span className="mx-8 sm:mx-12">Full-Stack</span>
-                <span className="text-white/[0.08] mx-3 sm:mx-4">◆</span>
+                <span className="text-white/[0.10] mx-3 sm:mx-4">◆</span>
                 <span className="mx-8 sm:mx-12">AI & ML</span>
-                <span className="text-white/[0.08] mx-3 sm:mx-4">◆</span>
+                <span className="text-white/[0.10] mx-3 sm:mx-4">◆</span>
                 <span className="mx-8 sm:mx-12">Product Design</span>
-                <span className="text-white/[0.08] mx-3 sm:mx-4">◆</span>
+                <span className="text-white/[0.10] mx-3 sm:mx-4">◆</span>
                 <span className="mx-8 sm:mx-12">System Architecture</span>
-                <span className="text-white/[0.08] mx-3 sm:mx-4">◆</span>
+                <span className="text-white/[0.10] mx-3 sm:mx-4">◆</span>
                 <span className="mx-8 sm:mx-12">Data Engineering</span>
-                <span className="text-white/[0.08] mx-3 sm:mx-4">◆</span>
+                <span className="text-white/[0.10] mx-3 sm:mx-4">◆</span>
                 <span className="mx-8 sm:mx-12">Developer Tools</span>
-                <span className="text-white/[0.08] mx-3 sm:mx-4">◆</span>
+                <span className="text-white/[0.10] mx-3 sm:mx-4">◆</span>
               </Marquee>
             </div>
 
