@@ -7,8 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
 
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
-import { Button } from '@/components/ui/button';
-import { ArrowRight, FileText } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), { ssr: false });
 
@@ -222,29 +221,15 @@ export default function HeroSection() {
         {/* Subtitle */}
         <div ref={subtitleRef} className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mb-12 leading-relaxed" />
 
-        {/* CTA Buttons */}
-        <div ref={ctaRef} className="flex flex-wrap gap-4 justify-center">
-          <Button
-            size="lg"
-            className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-8 text-[13px] font-semibold tracking-wide transition-all duration-300 hover:shadow-[0_4px_24px_-4px_oklch(0.13_0.005_265/25%)] hover:scale-[1.03] active:scale-[0.98]"
-            asChild
+        {/* CTA — single clean link */}
+        <div ref={ctaRef} className="flex justify-center">
+          <a
+            href="#projects-all"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--sage)] transition-colors duration-300"
           >
-            <a href="#projects-all">
-              View Projects
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </a>
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className="border-[var(--line)] text-[var(--ink)] hover:bg-[var(--paper-2)] h-12 px-8 text-[13px] font-semibold tracking-wide transition-all duration-300 hover:border-[var(--sage)]/30"
-            asChild
-          >
-            <a href="#blog">
-              <FileText className="mr-2 h-4 w-4" />
-              Read Blog
-            </a>
-          </Button>
+            See my work
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-300" />
+          </a>
         </div>
 
         {/* Stats */}
