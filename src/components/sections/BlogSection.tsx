@@ -150,13 +150,16 @@ export default function BlogSection() {
               Notes on product building, system design, AI engineering, and the craft of making things that last.
             </p>
           </div>
-          <button
+          <a
             onClick={() => document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex items-center gap-2 shrink-0 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--sage)] transition-colors rounded-lg border border-[var(--line)] hover:border-[var(--sage)]/40 px-4 py-2"
+            className="group flex items-center gap-2.5 shrink-0 text-[13px] font-semibold text-[var(--ink)] transition-all duration-300 hover:text-[var(--sage)] hover:gap-3"
           >
-            View All
-            <ArrowRight className="w-4 h-4" />
-          </button>
+            <span className="relative">
+              View All Articles
+              <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-full bg-[var(--sage)] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+            </span>
+            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </a>
         </div>
 
         {/* ── Featured Article — Magazine Style ───────────────────── */}
