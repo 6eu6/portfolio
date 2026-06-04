@@ -4,9 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { articles, getFeaturedArticle, type Article } from '@/data/articles';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Clock, BookOpen } from 'lucide-react';
 import TextReveal from '@/components/motion/TextReveal';
 import ArticleDialog from '@/components/blog/ArticleDialog';
 import type { ArticleDialogData } from '@/components/blog/ArticleDialog';
@@ -14,16 +12,16 @@ import type { ArticleDialogData } from '@/components/blog/ArticleDialog';
 gsap.registerPlugin(ScrollTrigger);
 
 /* ------------------------------------------------------------------ */
-/*  Category → accent color mapping                                    */
+/*  Category → accent mapping                                            */
 /* ------------------------------------------------------------------ */
-const categoryAccent: Record<string, { color: string; bg: string; glow: string }> = {
-  AI:          { color: 'var(--sage)', bg: 'oklch(0.62 0.14 160 / 6%)',  glow: 'oklch(0.62 0.14 160 / 15%)' },
-  Product:      { color: 'var(--sand)', bg: 'oklch(0.70 0.09 80 / 6%)',   glow: 'oklch(0.70 0.09 80 / 15%)' },
-  Engineering:  { color: 'var(--sky)',  bg: 'oklch(0.65 0.12 230 / 6%)',  glow: 'oklch(0.65 0.12 230 / 15%)' },
-  Design:       { color: 'var(--lav)',  bg: 'oklch(0.65 0.12 290 / 6%)',  glow: 'oklch(0.65 0.12 290 / 15%)' },
-  Strategy:     { color: 'var(--rose)', bg: 'oklch(0.62 0.16 10 / 6%)',   glow: 'oklch(0.62 0.16 10 / 15%)' },
+const categoryAccent: Record<string, { color: string; colorRgb: string; bg: string }> = {
+  AI:          { color: 'oklch(0.62 0.14 160)', colorRgb: '0.62 0.14 160', bg: 'oklch(0.62 0.14 160 / 6%)' },
+  Product:      { color: 'oklch(0.70 0.09 80)',  colorRgb: '0.70 0.09 80',  bg: 'oklch(0.70 0.09 80 / 6%)' },
+  Engineering:  { color: 'oklch(0.65 0.12 230)', colorRgb: '0.65 0.12 230', bg: 'oklch(0.65 0.12 230 / 6%)' },
+  Design:       { color: 'oklch(0.65 0.12 290)', colorRgb: '0.65 0.12 290', bg: 'oklch(0.65 0.12 290 / 6%)' },
+  Strategy:     { color: 'oklch(0.62 0.16 10)',  colorRgb: '0.62 0.16 10',  bg: 'oklch(0.62 0.16 10 / 6%)' },
 };
-const defaultAccent = { color: 'var(--muted-foreground)', bg: 'oklch(0.50 0 0 / 5%)', glow: 'oklch(0.50 0 0 / 10%)' };
+const defaultAccent = { color: 'oklch(0.50 0 0)', colorRgb: '0.50 0 0', bg: 'oklch(0.50 0 0 / 5%)' };
 
 /* ------------------------------------------------------------------ */
 /*  API Article type                                                   */
@@ -132,86 +130,129 @@ export default function BlogSection() {
     };
   }, []);
 
+  const allArticles = [...otherArticles, ...apiArticles];
+
   return (
-    <section ref={sectionRef} id="blog" className="py-28 md:py-40">
-      <div className="max-w-6xl mx-auto px-6">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-16">
+    <section ref={sectionRef} id="blog" className="py-20 sm:py-28 md:py-40">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6">
+        {/* ── Section Header ────────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12 sm:mb-16">
           <div>
             <p className="text-[11px] tracking-[0.25em] font-semibold uppercase text-[var(--sage)] mb-4">
               Blog
             </p>
             <TextReveal
               text="Writing & thinking"
-              className="text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--ink)] mb-4"
               stagger={0.06}
             />
-            <p className="text-[var(--muted-foreground)] max-w-2xl text-[15px]">
+            <p className="text-[var(--muted-foreground)] max-w-2xl text-[14px] sm:text-[15px]">
               Notes on product building, system design, AI engineering, and the craft of making things that last.
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 shrink-0 border-[var(--line)] hover:border-[var(--sage)]/40 hover:text-[var(--sage)] transition-colors rounded-lg"
-            asChild
+          <button
+            onClick={() => document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex items-center gap-2 shrink-0 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--sage)] transition-colors rounded-lg border border-[var(--line)] hover:border-[var(--sage)]/40 px-4 py-2"
           >
-            <a href="#blog">
-              View All
-              <ArrowRight className="w-4 h-4" />
-            </a>
-          </Button>
+            View All
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Featured Article — large card with accent line */}
+        {/* ── Featured Article — Magazine Style ───────────────────── */}
         {featured && (
           <div
             ref={featuredRef}
             onClick={() => handleArticleClick(featured)}
-            className="group cursor-pointer mb-12 relative overflow-hidden rounded-2xl border border-[var(--line)] hover:border-[var(--sage)]/30 transition-all duration-500"
-            style={{ transformStyle: 'preserve-3d' }}
+            className="group cursor-pointer mb-10 sm:mb-14 relative"
           >
-            {/* Parallax gradient */}
-            <div
-              ref={featuredBgRef}
-              className="absolute inset-0 pointer-events-none"
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--line)] group-hover:border-[var(--sage)]/30 transition-all duration-700"
               style={{
-                background: 'linear-gradient(135deg, oklch(0.62 0.14 160 / 6%) 0%, oklch(0.65 0.12 290 / 4%) 50%, oklch(0.65 0.12 230 / 4%) 100%)',
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 100%)',
+                backdropFilter: 'blur(16px) saturate(1.3)',
+                WebkitBackdropFilter: 'blur(16px) saturate(1.3)',
               }}
-            />
-            {/* Accent left line */}
-            <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] rounded-l-2xl" />
+            >
+              {/* Parallax gradient background */}
+              <div
+                ref={featuredBgRef}
+                className="absolute inset-0 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+                style={{
+                  background: `
+                    radial-gradient(ellipse 50% 40% at 0% 20%, oklch(0.62 0.14 160 / 8%) 0%, transparent 60%),
+                    radial-gradient(ellipse 40% 40% at 100% 80%, oklch(0.65 0.12 290 / 6%) 0%, transparent 60%)
+                  `,
+                }}
+              />
 
-            <div className="relative z-10 p-6 sm:p-8 md:p-10 pl-8 sm:pl-11 md:pl-14">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <Badge variant="secondary" className="text-xs bg-[var(--sage)]/8 text-[var(--sage)]">
-                  Featured
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  {featured.category}
-                </Badge>
-                <span className="text-xs text-[var(--muted-foreground)]">
-                  {new Date(featured.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              {/* Large decorative number */}
+              <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-10 pointer-events-none select-none">
+                <span className="text-[80px] sm:text-[120px] md:text-[160px] font-black leading-none text-[var(--ink)]/[0.03] tabular-nums">
+                  01
                 </span>
               </div>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-[var(--ink)] mb-2 group-hover:text-[var(--sage)] transition-colors duration-300">
-                {featured.title}
-              </h3>
-              <p className="text-sm text-[var(--muted-foreground)] mb-1">{featured.subtitle}</p>
-              <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-6 max-w-2xl">
-                {featured.excerpt}
-              </p>
-              <div className="flex items-center gap-2 text-sm text-[var(--sage)] font-medium">
-                Read article <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+
+              {/* Accent left line */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] sm:w-[4px] bg-gradient-to-b from-[var(--sage)] via-[var(--sky)] to-[var(--lav)]" />
+
+              <div className="relative z-10 p-5 sm:p-8 md:p-10 pl-7 sm:pl-10 md:pl-14">
+                {/* Top row */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+                  <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full bg-[var(--sage)]/10 text-[var(--sage)]">
+                    Featured
+                  </span>
+                  <span className="text-[10px] sm:text-[11px] font-semibold tracking-wide px-2.5 py-1 rounded-full border border-[var(--line)] text-[var(--muted-foreground)]">
+                    {featured.category}
+                  </span>
+                  <span className="flex items-center gap-1 text-[11px] sm:text-xs text-[var(--muted-foreground)] ml-auto">
+                    <Clock className="w-3 h-3" />
+                    {featured.readTime}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[var(--ink)] mb-2 sm:mb-3 leading-tight group-hover:text-[var(--sage)] transition-colors duration-500">
+                  {featured.title}
+                </h3>
+
+                {/* Subtitle */}
+                <p className="text-sm sm:text-[15px] text-[var(--muted-foreground)]/80 mb-3 sm:mb-4 font-medium">
+                  {featured.subtitle}
+                </p>
+
+                {/* Excerpt */}
+                <p className="text-[12px] sm:text-sm text-[var(--muted-foreground)] leading-relaxed mb-5 sm:mb-6 max-w-2xl line-clamp-2 sm:line-clamp-3">
+                  {featured.excerpt}
+                </p>
+
+                {/* Bottom row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-[11px] text-[var(--muted-foreground)]">
+                      {new Date(featured.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                    <span className="text-[var(--line)]">·</span>
+                    <div className="flex gap-1.5">
+                      {featured.tags.slice(0, 3).map((tag) => (
+                        <span key={tag} className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--paper-2)] text-[var(--muted-foreground)]/70">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-[var(--sage)] group-hover:gap-2.5 transition-all duration-300">
+                    Read article
+                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Articles Grid */}
-        <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {/* Static articles */}
-          {otherArticles.map((article, idx) => {
+        {/* ── Articles Grid ────────────────────────────────────────── */}
+        <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+          {allArticles.map((article, idx) => {
             const accent = categoryAccent[article.category] || defaultAccent;
             return (
               <ArticleCard
@@ -220,22 +261,6 @@ export default function BlogSection() {
                 accent={accent}
                 index={idx}
                 onClick={() => handleArticleClick(article)}
-                isApi={false}
-              />
-            );
-          })}
-
-          {/* API articles */}
-          {apiArticles.map((article, idx) => {
-            const accent = categoryAccent[article.category] || defaultAccent;
-            return (
-              <ArticleCard
-                key={`api-${article.id}`}
-                article={article}
-                accent={accent}
-                index={idx + otherArticles.length}
-                onClick={() => handleArticleClick(article)}
-                isApi={true}
               />
             );
           })}
@@ -253,77 +278,44 @@ export default function BlogSection() {
 }
 
 /* ================================================================== */
-/*  Article Card — a reusable creative card component                    */
+/*  Article Card — Creative modern card component                       */
 /* ================================================================== */
 
 interface ArticleCardProps {
   article: Article | ApiArticle;
-  accent: { color: string; bg: string; glow: string };
+  accent: { color: string; colorRgb: string; bg: string };
   index: number;
   onClick: () => void;
-  isApi: boolean;
 }
 
-function ArticleCard({ article, accent, index, onClick, isApi }: ArticleCardProps) {
+function ArticleCard({ article, accent, index, onClick }: ArticleCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const numberRef = useRef<HTMLSpanElement>(null);
+  const accentBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
-
-    const line = lineRef.current;
-    const num = numberRef.current;
+    const bar = accentBarRef.current;
 
     const handleEnter = () => {
-      // Top accent line — expands from center
-      if (line) {
-        gsap.to(line, {
-          scaleX: 1,
-          duration: 0.5,
-          ease: 'power3.out',
-        });
-      }
-      // Card lift + shadow
       gsap.to(card, {
-        y: -8,
-        boxShadow: `0 20px 50px -12px ${accent.glow}`,
+        y: -6,
         duration: 0.4,
         ease: 'power3.out',
       });
-      // Number fades in
-      if (num) {
-        gsap.to(num, {
-          opacity: 1,
-          y: 0,
-          duration: 0.3,
-          ease: 'power2.out',
-        });
+      if (bar) {
+        gsap.to(bar, { scaleX: 1, duration: 0.5, ease: 'power3.out' });
       }
     };
 
     const handleLeave = () => {
-      if (line) {
-        gsap.to(line, {
-          scaleX: 0,
-          duration: 0.4,
-          ease: 'power3.in',
-        });
-      }
       gsap.to(card, {
         y: 0,
-        boxShadow: '0 0px 0px 0px rgba(0,0,0,0)',
         duration: 0.4,
         ease: 'power3.out',
       });
-      if (num) {
-        gsap.to(num, {
-          opacity: 0,
-          y: 4,
-          duration: 0.25,
-          ease: 'power2.in',
-        });
+      if (bar) {
+        gsap.to(bar, { scaleX: 0, duration: 0.4, ease: 'power3.in' });
       }
     };
 
@@ -333,118 +325,133 @@ function ArticleCard({ article, accent, index, onClick, isApi }: ArticleCardProp
       card.removeEventListener('mouseenter', handleEnter);
       card.removeEventListener('mouseleave', handleLeave);
     };
-  }, [accent.glow]);
+  }, []);
 
   const title = article.title;
-  const subtitle = 'subtitle' in article ? article.subtitle : '';
+  const subtitle = 'subtitle' in article ? (article.subtitle || '') : '';
   const excerpt = article.excerpt;
   const category = article.category;
   const readTime = article.readTime;
   const tags = article.tags;
+  const num = String(index + 2).padStart(2, '0');
 
   return (
     <div
       ref={cardRef}
       onClick={onClick}
-      className={`blog-card group relative cursor-pointer rounded-xl border transition-all duration-300 ${
-        isApi
-          ? 'border-[var(--line)] bg-[var(--paper)]'
-          : 'border-[var(--line)] bg-[var(--paper)]'
-      }`}
-      style={{
-        transformStyle: 'preserve-3d',
-        transformPerspective: 800,
-      }}
+      className="blog-card group relative cursor-pointer"
+      style={{ transformPerspective: 800 }}
     >
-      {/* ── Top accent line (animated) ────────────────────────────── */}
-      <div className="absolute top-0 left-4 right-4 h-[2px] z-20">
-        <div
-          ref={lineRef}
-          className="h-full rounded-full origin-left"
-          style={{
-            transform: 'scaleX(0)',
-            background: `linear-gradient(90deg, ${accent.color}, transparent)`,
-          }}
-        />
-      </div>
-
-      {/* ── Subtle background glow on hover ───────────────────────── */}
+      {/* ── Card container with proper rounded clip ────────────── */}
       <div
-        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        className="relative overflow-hidden rounded-2xl border border-[var(--line)] group-hover:border-transparent transition-all duration-500"
         style={{
-          background: `radial-gradient(ellipse 60% 50% at 50% 0%, ${accent.bg}, transparent)`,
+          /* ── Glassmorphism background ──────────────────────────── */
+          background: `linear-gradient(
+            160deg,
+            ${accent.color}06 0%,
+            rgba(255, 255, 255, 0.5) 30%,
+            rgba(255, 255, 255, 0.7) 100%
+          )`,
+          backdropFilter: 'blur(12px) saturate(1.2)',
+          WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
+          boxShadow: '0 2px 16px -4px rgba(0,0,0,0.05), inset 0 1px 0 0 rgba(255,255,255,0.4)',
         }}
-      />
+      >
+        {/* ── Top accent bar (animated on hover) ───────────────── */}
+        <div className="absolute top-0 left-3 right-3 h-[2px] z-20">
+          <div
+            ref={accentBarRef}
+            className="h-full rounded-full origin-left"
+            style={{
+              transform: 'scaleX(0)',
+              background: `linear-gradient(90deg, ${accent.color}, ${accent.color}60)`,
+            }}
+          />
+        </div>
 
-      {/* ── Content ──────────────────────────────────────────────── */}
-      <div className="relative z-10 p-5 sm:p-6">
-        {/* Top row: category + time */}
-        <div className="flex items-center gap-2.5 mb-4">
+        {/* ── Large decorative number (top-right) ──────────────── */}
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 pointer-events-none select-none z-0">
           <span
-            className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-md"
+            className="text-[56px] sm:text-[72px] md:text-[80px] font-black leading-none tabular-nums"
             style={{
               color: accent.color,
-              backgroundColor: accent.bg,
+              opacity: 0.06,
             }}
           >
-            {category}
-          </span>
-          <span className="text-[11px] text-[var(--muted-foreground)] flex items-center gap-1 ml-auto">
-            <Clock className="w-3 h-3" />
-            {readTime}
+            {num}
           </span>
         </div>
 
-        {/* Title */}
-        <h3 className="text-[17px] font-semibold text-[var(--ink)] mb-1.5 leading-snug group-hover:text-[var(--ink)] transition-colors duration-300">
-          {title}
-        </h3>
+        {/* ── Category color dot (top-left, subtle) ──────────────── */}
+        <div
+          className="absolute top-4 left-4 sm:top-5 sm:left-5 w-2 h-2 rounded-full z-10 group-hover:scale-150 transition-transform duration-500"
+          style={{
+            backgroundColor: accent.color,
+            opacity: 0.6,
+            boxShadow: `0 0 8px 2px ${accent.bg}`,
+          }}
+        />
 
-        {/* Subtitle */}
-        {subtitle && (
-          <p className="text-[13px] text-[var(--muted-foreground)]/70 mb-3 leading-snug">
-            {subtitle}
-          </p>
-        )}
-
-        {/* Excerpt */}
-        <p className="text-[12px] text-[var(--muted-foreground)]/60 leading-relaxed line-clamp-2 mb-4">
-          {excerpt}
-        </p>
-
-        {/* Bottom row: tags + read link */}
-        <div className="flex items-center justify-between pt-3.5 border-t border-[var(--line)]/60">
-          <div className="flex gap-1.5 overflow-hidden">
-            {Array.isArray(tags) && tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--paper-2)] text-[var(--muted-foreground)]/70"
-              >
-                {tag}
-              </span>
-            ))}
+        {/* ── Content ───────────────────────────────────────────── */}
+        <div className="relative z-10 p-5 sm:p-6">
+          {/* Top row: category + time */}
+          <div className="flex items-center gap-2 mb-4 sm:mb-5">
+            <span
+              className="text-[10px] font-bold tracking-[0.15em] uppercase px-2.5 py-1 rounded-md"
+              style={{
+                color: accent.color,
+                backgroundColor: accent.bg,
+              }}
+            >
+              {category}
+            </span>
+            <span className="text-[11px] text-[var(--muted-foreground)] flex items-center gap-1 ml-auto">
+              <BookOpen className="w-3 h-3" />
+              {readTime}
+            </span>
           </div>
 
-          {/* Read indicator */}
-          <span className="flex items-center gap-1.5 text-[11px] font-medium transition-all duration-300"
-            style={{ color: accent.color }}
-          >
-            Read
-            <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
-          </span>
-        </div>
+          {/* Title */}
+          <h3 className="text-[16px] sm:text-[17px] font-bold text-[var(--ink)] mb-1.5 leading-snug group-hover:text-[var(--ink)] transition-colors duration-300">
+            {title}
+          </h3>
 
-        {/* ── Floating article number (appears on hover) ─────────── */}
-        <span
-          ref={numberRef}
-          className="absolute -top-2 -right-1 text-[11px] font-bold tabular-nums opacity-0"
-          style={{
-            transform: 'translateY(4px)',
-            color: accent.color,
-          }}
-        >
-          {String(index + 1).padStart(2, '0')}
-        </span>
+          {/* Subtitle */}
+          {subtitle && (
+            <p className="text-[12px] sm:text-[13px] text-[var(--muted-foreground)]/70 mb-3 leading-snug font-medium">
+              {subtitle}
+            </p>
+          )}
+
+          {/* Excerpt */}
+          <p className="text-[11px] sm:text-[12px] text-[var(--muted-foreground)]/55 leading-relaxed line-clamp-2 mb-4 sm:mb-5">
+            {excerpt}
+          </p>
+
+          {/* Bottom row */}
+          <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-[var(--line)]/50">
+            <div className="flex gap-1.5 overflow-hidden">
+              {Array.isArray(tags) && tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--ink)]/4 text-[var(--muted-foreground)]/70"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* Read indicator */}
+            <span
+              className="flex items-center gap-1 text-[11px] sm:text-xs font-semibold transition-all duration-300 group-hover:gap-2"
+              style={{ color: accent.color }}
+            >
+              Read
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-300" />
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
