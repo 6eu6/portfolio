@@ -190,10 +190,10 @@ export default function SocialSection() {
   }, [animateCounters]);
 
   return (
-    <section id="social" className="py-28 md:py-40 bg-[var(--paper-2)]/30">
+    <section id="social" className="py-28 md:py-40 bg-gradient-to-b from-[var(--paper)] via-[var(--paper-2)]/20 to-[var(--paper)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
+        <p className="text-[11px] tracking-[0.25em] font-semibold uppercase text-[var(--sage)] mb-4">
           Connect
         </p>
         <TextReveal
@@ -225,8 +225,8 @@ export default function SocialSection() {
                 }}
                 onMouseEnter={(e) => {
                   gsap.to(e.currentTarget, {
-                    y: -4,
-                    boxShadow: '0 10px 20px -4px rgba(0,0,0,0.08)',
+                    y: -6,
+                    boxShadow: '0 16px 40px -8px rgba(0,0,0,0.10)',
                     duration: 0.3,
                     ease: 'power2.out',
                   });
@@ -242,19 +242,26 @@ export default function SocialSection() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div
-                    className="social-icon w-11 h-11 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center transition-transform duration-300"
+                    className="social-icon w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-xl flex items-center justify-center transition-all duration-300"
                     style={{ backgroundColor: `${platform.color}12` }}
                     onMouseEnter={(e) => {
                       gsap.to(e.currentTarget, {
-                        scale: 1.15,
-                        duration: 0.6,
-                        ease: 'elastic.out(1, 0.5)',
-                        yoyo: true,
-                        repeat: 1,
+                        y: -2,
+                        boxShadow: `0 4px 16px -2px ${platform.color}40`,
+                        duration: 0.35,
+                        ease: 'power2.out',
+                      });
+                    }}
+                    onMouseLeave={(e) => {
+                      gsap.to(e.currentTarget, {
+                        y: 0,
+                        boxShadow: '0 0px 0px 0px rgba(0,0,0,0)',
+                        duration: 0.35,
+                        ease: 'power2.out',
                       });
                     }}
                   >
-                    <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: platform.color }} />
+                    <IconComponent className="w-5 h-5 sm:w-[22px] sm:h-[22px]" style={{ color: platform.color }} />
                   </div>
                   <ExternalLink className="w-4 h-4 text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
@@ -262,7 +269,7 @@ export default function SocialSection() {
                 <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mb-4">{platform.description}</p>
                 <div className="flex items-center gap-2 pt-3 sm:pt-4 border-t border-[var(--line)]">
                   <span
-                    className="metric-counter text-xl sm:text-2xl font-bold text-[var(--ink)]"
+                    className="metric-counter text-xl sm:text-2xl font-bold text-[var(--ink)] tabular-nums"
                     data-value={numericValue}
                     data-suffix={suffix}
                   >

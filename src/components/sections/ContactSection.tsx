@@ -150,18 +150,18 @@ export function ContactSection() {
 
   return (
     <section ref={sectionRef} id="contact" className="relative py-28 md:py-40 overflow-hidden">
-      {/* Subtle gradient background (parallax) */}
+      {/* Subtle gradient background (parallax) — slightly increased opacity */}
       <div
         ref={bgGradientRef}
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, rgba(142,181,145,0.03) 0%, rgba(180,167,210,0.04) 40%, rgba(100,149,170,0.03) 100%)',
+          background: 'linear-gradient(180deg, rgba(142,181,145,0.05) 0%, rgba(180,167,210,0.06) 40%, rgba(100,149,170,0.05) 100%)',
         }}
       />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
+        <p className="text-[11px] tracking-[0.25em] font-semibold uppercase text-[var(--sage)] mb-4">
           Contact
         </p>
         <TextReveal
@@ -177,7 +177,7 @@ export function ContactSection() {
           {/* Contact Info */}
           <div ref={infoRef} className="lg:col-span-2 space-y-4">
             <div
-              className="contact-info-card flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:border-[var(--sage)]/30 transition-colors duration-300"
+              className="contact-info-card flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:shadow-[0_8px_24px_-8px_oklch(0.62_0.14_160/12%)] hover:border-[var(--sage)]/40 hover:bg-[var(--paper-2)]/60 transition-all duration-300"
               style={{ transformStyle: 'preserve-3d', transformPerspective: 800 }}
             >
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[var(--sage)]/10 flex items-center justify-center flex-shrink-0">
@@ -190,7 +190,7 @@ export function ContactSection() {
             </div>
 
             <div
-              className="contact-info-card flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:border-[var(--sky)]/30 transition-colors duration-300"
+              className="contact-info-card flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:shadow-[0_8px_24px_-8px_oklch(0.62_0.14_160/12%)] hover:border-[var(--sage)]/40 hover:bg-[var(--paper-2)]/60 transition-all duration-300"
               style={{ transformStyle: 'preserve-3d', transformPerspective: 800 }}
             >
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[var(--sky)]/10 flex items-center justify-center flex-shrink-0">
@@ -203,7 +203,7 @@ export function ContactSection() {
             </div>
 
             <div
-              className="contact-info-card flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:border-[var(--lav)]/30 transition-colors duration-300"
+              className="contact-info-card flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 hover:shadow-[0_8px_24px_-8px_oklch(0.62_0.14_160/12%)] hover:border-[var(--sage)]/40 hover:bg-[var(--paper-2)]/60 transition-all duration-300"
               style={{ transformStyle: 'preserve-3d', transformPerspective: 800 }}
             >
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[var(--lav)]/10 flex items-center justify-center flex-shrink-0">
@@ -226,7 +226,7 @@ export function ContactSection() {
                     placeholder="Your name"
                     value={formState.name}
                     onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
-                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-300 focus:border-[var(--sage)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_3px_rgba(142,181,145,0.12)] focus:bg-[var(--paper-2)]/60"
+                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-400 focus:border-[var(--sage)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_4px_oklch(0.62_0.14_160/10%)] focus:bg-[var(--paper-2)]/60"
                     required
                   />
                 </div>
@@ -237,7 +237,7 @@ export function ContactSection() {
                     placeholder="you@email.com"
                     value={formState.email}
                     onChange={(e) => setFormState((s) => ({ ...s, email: e.target.value }))}
-                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-300 focus:border-[var(--sky)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_3px_rgba(100,149,170,0.12)] focus:bg-[var(--paper-2)]/60"
+                    className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] h-11 sm:h-12 transition-all duration-400 focus:border-[var(--sky)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_4px_oklch(0.65_0.12_230/10%)] focus:bg-[var(--paper-2)]/60"
                     required
                   />
                 </div>
@@ -249,7 +249,7 @@ export function ContactSection() {
                   rows={6}
                   value={formState.message}
                   onChange={(e) => setFormState((s) => ({ ...s, message: e.target.value }))}
-                  className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] resize-none transition-all duration-300 focus:border-[var(--lav)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_3px_rgba(180,167,210,0.12)] focus:bg-[var(--paper-2)]/60"
+                  className="contact-input bg-[var(--paper-2)]/30 border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted-foreground)] resize-none transition-all duration-400 focus:border-[var(--lav)]/50 focus:ring-3 focus:ring-[var(--sage)]/20 focus:shadow-[0_0_0_4px_oklch(0.65_0.12_290/10%)] focus:bg-[var(--paper-2)]/60"
                   required
                 />
               </div>
@@ -257,7 +257,7 @@ export function ContactSection() {
                 type="submit"
                 size="lg"
                 disabled={isSubmitting}
-                className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-[var(--ink)] to-[var(--ink)]/90 text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-300 hover:shadow-[0_4px_24px_-4px_oklch(0.13_0.005_265/30%)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />

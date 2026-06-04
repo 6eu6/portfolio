@@ -164,7 +164,7 @@ export default function BlogSection() {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-16">
           <div>
-            <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
+            <p className="text-[11px] tracking-[0.25em] font-semibold uppercase text-[var(--sage)] mb-4">
               Blog
             </p>
             <TextReveal
@@ -194,7 +194,7 @@ export default function BlogSection() {
           <div
             ref={featuredRef}
             onClick={() => handleArticleClick(featured)}
-            className="group cursor-pointer mb-12 relative overflow-hidden rounded-2xl border border-[var(--line)] hover:border-[var(--sage)]/30 transition-all duration-500"
+            className="group cursor-pointer mb-12 relative overflow-hidden rounded-2xl border border-[var(--line)] border-l-[3px] border-l-[var(--sage)] hover:border-[var(--sage)]/30 transition-all duration-500"
             style={{ transformStyle: 'preserve-3d' }}
           >
             {/* Decorative gradient background (parallax) */}
@@ -202,12 +202,12 @@ export default function BlogSection() {
               ref={featuredBgRef}
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'linear-gradient(135deg, rgba(142,181,145,0.06) 0%, rgba(180,167,210,0.06) 40%, rgba(100,149,170,0.06) 100%)',
+                background: 'linear-gradient(135deg, rgba(142,181,145,0.08) 0%, rgba(180,167,210,0.08) 40%, rgba(100,149,170,0.08) 100%)',
               }}
             />
             <div className="relative z-10 p-6 sm:p-8 md:p-10">
               <div className="flex flex-wrap items-center gap-3 mb-4">
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-[var(--sage)]/5">
                   Featured
                 </Badge>
                 <Badge variant="outline" className="text-xs">
@@ -229,7 +229,7 @@ export default function BlogSection() {
               </div>
             </div>
             {/* Hover shadow overlay */}
-            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none shadow-xl" />
+            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none shadow-[0_16px_40px_-8px_rgba(0,0,0,0.10),0_4px_12px_-2px_rgba(0,0,0,0.05)]" />
           </div>
         )}
 
@@ -247,8 +247,8 @@ export default function BlogSection() {
               }}
               onMouseEnter={(e) => {
                 gsap.to(e.currentTarget, {
-                  y: -4,
-                  boxShadow: '0 12px 24px -4px rgba(0,0,0,0.08), 0 4px 8px -2px rgba(0,0,0,0.04)',
+                  y: -6,
+                  boxShadow: '0 16px 40px -8px rgba(0,0,0,0.10), 0 4px 12px -2px rgba(0,0,0,0.05)',
                   duration: 0.35,
                   ease: 'power2.out',
                 });
@@ -286,15 +286,15 @@ export default function BlogSection() {
             <div
               key={`api-${article.id}`}
               onClick={() => handleArticleClick(article)}
-              className="blog-card group cursor-pointer p-5 sm:p-6 rounded-xl border border-[var(--sage)]/20 bg-[var(--sage)]/[0.02] hover:border-[var(--sage)]/40 transition-all duration-500"
+              className="blog-card group cursor-pointer p-5 sm:p-6 rounded-xl border border-[var(--sage)]/20 border-l-[2px] border-l-[var(--sage)]/30 bg-[var(--sage)]/[0.02] hover:border-[var(--sage)]/40 transition-all duration-500"
               style={{
                 transformStyle: 'preserve-3d',
                 transformPerspective: 800,
               }}
               onMouseEnter={(e) => {
                 gsap.to(e.currentTarget, {
-                  y: -4,
-                  boxShadow: '0 12px 24px -4px rgba(0,0,0,0.08), 0 4px 8px -2px rgba(0,0,0,0.04)',
+                  y: -6,
+                  boxShadow: '0 16px 40px -8px rgba(0,0,0,0.10), 0 4px 12px -2px rgba(0,0,0,0.05)',
                   duration: 0.35,
                   ease: 'power2.out',
                 });

@@ -95,7 +95,7 @@ export default function Home() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch('/api/projects?XTransformPort=3000');
+        const res = await fetch('/api/projects');
         if (res.ok && !cancelled) {
           const data: ApiProject[] = await res.json();
           if (data.length > 0) {
@@ -126,9 +126,9 @@ export default function Home() {
             {/* Hero */}
             <HeroSection />
 
-            {/* Marquee divider */}
+            {/* Marquee divider — light */}
             <div className="py-8 border-y border-[var(--line)] overflow-hidden">
-              <Marquee speed={40} className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--ink)]/5">
+              <Marquee speed={40} className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--ink)]/[0.04]">
                 <span className="mx-8">Products</span>
                 <span className="text-[var(--sage)]/20 mx-4">◆</span>
                 <span className="mx-8">Systems</span>
@@ -150,21 +150,21 @@ export default function Home() {
               <HorizontalScroll projects={projects} onProjectClick={handleProjectClick} />
             </div>
 
-            {/* Marquee divider 2 */}
-            <div className="py-6 border-y border-[var(--line)] overflow-hidden bg-[var(--ink)]">
-              <Marquee speed={35} direction="right" className="text-sm tracking-[0.3em] uppercase text-white/10">
+            {/* Marquee divider — dark */}
+            <div className="py-6 border-y border-white/[0.06] overflow-hidden bg-[var(--ink)]">
+              <Marquee speed={35} direction="right" className="text-[13px] tracking-[0.3em] uppercase text-white/[0.08] font-medium">
                 <span className="mx-12">Full-Stack</span>
-                <span className="text-white/5 mx-4">◆</span>
+                <span className="text-white/[0.04] mx-4">◆</span>
                 <span className="mx-12">AI & ML</span>
-                <span className="text-white/5 mx-4">◆</span>
+                <span className="text-white/[0.04] mx-4">◆</span>
                 <span className="mx-12">Product Design</span>
-                <span className="text-white/5 mx-4">◆</span>
+                <span className="text-white/[0.04] mx-4">◆</span>
                 <span className="mx-12">System Architecture</span>
-                <span className="text-white/5 mx-4">◆</span>
+                <span className="text-white/[0.04] mx-4">◆</span>
                 <span className="mx-12">Data Engineering</span>
-                <span className="text-white/5 mx-4">◆</span>
+                <span className="text-white/[0.04] mx-4">◆</span>
                 <span className="mx-12">Developer Tools</span>
-                <span className="text-white/5 mx-4">◆</span>
+                <span className="text-white/[0.04] mx-4">◆</span>
               </Marquee>
             </div>
 

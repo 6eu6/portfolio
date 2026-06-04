@@ -20,20 +20,14 @@ export default function Header() {
   const ctaOffset = useRef({ x: 0, y: 0 });
   const ctaTarget = useRef({ x: 0, y: 0 });
 
-  // Track glassmorphism state via ref to avoid re-renders
   const isScrolledRef = useRef(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  // Active section state — updated infrequently via rAF
   const [activeSection, setActiveSection] = useState('');
-
-  // ─── Mobile sheet open state ────────────────────────────────────
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobileNavRef = useRef<HTMLDivElement>(null);
 
-  // ─── Staggered mobile menu animation ────────────────────────────
   useEffect(() => {
     if (!mobileOpen || !mobileNavRef.current) return;
-
     const items = mobileNavRef.current.querySelectorAll('.mobile-nav-item');
     gsap.set(items, { opacity: 0, x: 24, filter: 'blur(6px)' });
     gsap.to(items, {
@@ -47,13 +41,11 @@ export default function Header() {
     });
   }, [mobileOpen]);
 
-  // ─── Core scroll logic: show/hide, glassmorphism, progress bar, active section ──────
   useEffect(() => {
     const header = headerRef.current;
     const progress = progressRef.current;
     if (!header || !progress) return;
 
-    // Initially hide
     gsap.set(header, { y: -100, opacity: 0 });
     gsap.set(progress, { scaleX: 0 });
 
@@ -66,7 +58,6 @@ export default function Header() {
     });
     showTlRef.current = showTl;
 
-    // ─── Active section tracking via IntersectionObserver ──────────
     const sectionElements = navigation
       .map((item) => document.getElementById(item.sectionId))
       .filter(Boolean) as HTMLElement[];
@@ -78,7 +69,6 @@ export default function Header() {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             const id = entry.target.id;
-            // Use rAF to batch state updates and avoid mid-frame re-renders
             cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(() => {
               if (activeSectionRef.current !== id) {
@@ -89,15 +79,11 @@ export default function Header() {
           }
         }
       },
-      {
-        rootMargin: '-20% 0px -60% 0px',
-        threshold: 0,
-      }
+      { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
     );
 
     sectionElements.forEach((el) => observer.observe(el));
 
-    // ─── ScrollTrigger for show/hide, glass, progress ─────────────
     const scrollTriggerInstance = ScrollTrigger.create({
       trigger: document.documentElement,
       start: 'top top',
@@ -106,7 +92,6 @@ export default function Header() {
         const scrollPos = self.scroll();
         const tl = showTlRef.current;
 
-        // Show/hide header at 100px threshold
         if (scrollPos > 100 && !isVisible.current) {
           isVisible.current = true;
           tl?.play();
@@ -115,14 +100,12 @@ export default function Header() {
           tl?.reverse();
         }
 
-        // Glassmorphism toggle
         const scrolled = scrollPos > 100;
         if (scrolled !== isScrolledRef.current) {
           isScrolledRef.current = scrolled;
           setIsScrolled(scrolled);
         }
 
-        // Progress bar
         gsap.set(progress, { scaleX: self.progress });
       },
     });
@@ -136,23 +119,17 @@ export default function Header() {
     };
   }, []);
 
-  // ─── Magnetic CTA button ────────────────────────────────────────
-  const handleCtaMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      const btn = ctaRef.current;
-      if (!btn) return;
-      const rect = btn.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const maxDist = 18;
-
-      const dx = Math.max(-maxDist, Math.min(maxDist, (e.clientX - centerX) * 0.3));
-      const dy = Math.max(-maxDist, Math.min(maxDist, (e.clientY - centerY) * 0.3));
-
-      ctaTarget.current = { x: dx, y: dy };
-    },
-    []
-  );
+  const handleCtaMouseMove = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    const btn = ctaRef.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const maxDist = 18;
+    const dx = Math.max(-maxDist, Math.min(maxDist, (e.clientX - centerX) * 0.3));
+    const dy = Math.max(-maxDist, Math.min(maxDist, (e.clientY - centerY) * 0.3));
+    ctaTarget.current = { x: dx, y: dy };
+  }, []);
 
   const handleCtaMouseLeave = useCallback(() => {
     ctaTarget.current = { x: 0, y: 0 };
@@ -170,27 +147,24 @@ export default function Header() {
         });
       });
     });
-
     return () => ctx.revert();
   }, []);
 
-  // ─── Active link checker ───────────────────────────────────────
   const isActive = (sectionId: string) => activeSection === sectionId;
 
   return (
     <header
       ref={headerRef}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-white/60 backdrop-blur-2xl border-b border-[var(--line)]/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
+          ? 'bg-[var(--paper)]/70 backdrop-blur-2xl border-b border-[var(--line)]/60 shadow-[0_1px_0_0_oklch(0_0_0/3%),0_4px_16px_-4px_oklch(0_0_0/5%)]'
           : 'bg-transparent border-transparent'
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        {/* Logo */}
         <a
           href="#home"
-          className="text-lg font-semibold tracking-tight text-[var(--ink)] hover:text-[var(--sage)] transition-colors duration-200 select-none"
+          className="text-lg font-semibold tracking-tight text-[var(--ink)] hover:text-[var(--sage)] transition-colors duration-300 select-none"
         >
           Ahmed<span className="text-[var(--sage)]">.</span>
         </a>
@@ -203,29 +177,29 @@ export default function Header() {
               <a
                 key={item.label}
                 href={item.href}
-                className={`relative text-sm transition-colors duration-200 py-1 ${
+                className={`relative text-[13px] tracking-wide transition-colors duration-300 py-1 ${
                   active
-                    ? 'text-[var(--sage)] font-medium'
+                    ? 'text-[var(--sage)] font-semibold'
                     : 'text-[var(--muted-foreground)] hover:text-[var(--ink)]'
                 }`}
               >
                 {item.label}
-                {/* Underline indicator */}
                 <span
-                  className={`absolute -bottom-0.5 left-0 h-[2px] bg-[var(--sage)] rounded-full transition-all duration-300 ${
-                    active ? 'w-full opacity-100' : 'w-0 opacity-0'
+                  className={`absolute -bottom-0.5 left-0 h-[1.5px] rounded-full transition-all duration-400 ease-out ${
+                    active
+                      ? 'w-full opacity-100 bg-[var(--sage)]'
+                      : 'w-0 opacity-0 bg-[var(--sage)]'
                   }`}
                 />
               </a>
             );
           })}
 
-          {/* Magnetic CTA */}
           <button
             ref={ctaRef}
             onMouseMove={handleCtaMouseMove}
             onMouseLeave={handleCtaMouseLeave}
-            className="ml-2 relative px-5 py-2 text-sm font-medium rounded-full bg-[var(--ink)] text-[var(--paper)] overflow-hidden transition-shadow duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.15)] active:scale-[0.97]"
+            className="ml-2 relative px-5 py-2 text-[13px] font-semibold tracking-wide rounded-full bg-[var(--ink)] text-[var(--paper)] overflow-hidden transition-all duration-300 hover:shadow-[0_4px_24px_-4px_oklch(0.13_0.005_265/25%)] hover:scale-[1.03] active:scale-[0.97]"
           >
             Let&apos;s Talk
           </button>
@@ -248,7 +222,6 @@ export default function Header() {
               side="right"
               className="w-72 bg-[var(--paper)] border-[var(--line)]/40 p-0 flex flex-col [&>[data-slot=sheet-close]]:hidden"
             >
-              {/* Close button */}
               <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--line)]/30">
                 <SheetTitle className="text-sm font-medium text-[var(--muted-foreground)]">
                   Menu
@@ -263,11 +236,7 @@ export default function Header() {
                 </Button>
               </div>
 
-              {/* Mobile nav items */}
-              <nav
-                ref={mobileNavRef}
-                className="flex flex-col flex-1 px-2 pt-4"
-              >
+              <nav ref={mobileNavRef} className="flex flex-col flex-1 px-2 pt-4">
                 {navigation.map((item) => {
                   const active = isActive(item.sectionId);
                   return (
@@ -275,22 +244,18 @@ export default function Header() {
                       key={item.label}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`mobile-nav-item flex items-center h-14 px-4 rounded-xl text-[15px] transition-all duration-200 ${
+                      className={`mobile-nav-item flex items-center h-14 px-4 rounded-xl text-[15px] transition-all duration-300 ${
                         active
                           ? 'text-[var(--sage)] font-medium bg-[var(--sage)]/8'
-                          : 'text-[var(--ink)]/80 hover:text-[var(--ink)] hover:bg-[var(--ink)]/[0.04]'
+                          : 'text-[var(--ink)]/70 hover:text-[var(--ink)] hover:bg-[var(--ink)]/[0.03]'
                       }`}
                     >
-                      {/* Active indicator dot */}
                       <span
                         className={`mr-3 h-1.5 w-1.5 rounded-full transition-all duration-300 ${
-                          active
-                            ? 'bg-[var(--sage)] scale-100'
-                            : 'bg-transparent scale-0'
+                          active ? 'bg-[var(--sage)] scale-100' : 'bg-transparent scale-0'
                         }`}
                       />
                       {item.label}
-                      {/* Active chevron */}
                       {active && (
                         <svg
                           className="ml-auto h-4 w-4 text-[var(--sage)]/50"
@@ -308,12 +273,11 @@ export default function Header() {
                   );
                 })}
 
-                {/* Mobile CTA */}
                 <div className="mobile-nav-item mt-4 px-4">
                   <a
                     href="#contact"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center h-12 rounded-xl text-sm font-medium bg-[var(--ink)] text-[var(--paper)] transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                    className="flex items-center justify-center h-12 rounded-xl text-sm font-semibold bg-[var(--ink)] text-[var(--paper)] transition-all duration-300 hover:opacity-90 active:scale-[0.98]"
                   >
                     Let&apos;s Talk
                   </a>

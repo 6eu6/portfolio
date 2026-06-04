@@ -12,9 +12,6 @@ import { ArrowRight, FileText } from 'lucide-react';
 
 const HeroScene = dynamic(() => import('@/components/three/HeroScene'), { ssr: false });
 
-/* ------------------------------------------------------------------ */
-/*  Helper: build TextReveal-style DOM & return the animatable spans  */
-/* ------------------------------------------------------------------ */
 function buildRevealUnits(container: HTMLElement, text: string) {
   container.innerHTML = text
     .split(' ')
@@ -26,14 +23,8 @@ function buildRevealUnits(container: HTMLElement, text: string) {
   return container.querySelectorAll('.text-reveal-inner');
 }
 
-/* ------------------------------------------------------------------ */
-/*  Rotating words for the hero heading                                */
-/* ------------------------------------------------------------------ */
-const ROTATING_WORDS = ['calm', 'easy', 'simple', 'real', 'elegant', 'powerful'];
+const ROTATING_WORDS = ['calm', 'elegant', 'simple', 'real', 'powerful', 'precise'];
 
-/* ------------------------------------------------------------------ */
-/*  Static strings                                                    */
-/* ------------------------------------------------------------------ */
 const EYEBROW = 'Builder · Founder · Developer';
 const HEADING_LINE_1 = 'Building products';
 const HEADING_LINE_2A = 'that feel';
@@ -48,13 +39,9 @@ const STATS: { end: number; suffix: string; label: string }[] = [
   { end: 10, suffix: 'K+', label: 'Community Reach' },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const heading1Ref = useRef<HTMLDivElement>(null);
   const heading2aRef = useRef<HTMLDivElement>(null);
@@ -91,14 +78,12 @@ export default function HeroSection() {
 
     if (!section || !content || !eyebrow || !h1 || !h2a || !wordRotator || !wordText || !h3 || !subtitle || !cta || !stats) return;
 
-    /* ---------- Build reveal units ---------- */
     const eyebrowInners = buildRevealUnits(eyebrow, EYEBROW);
     const h1Inners = buildRevealUnits(h1, HEADING_LINE_1);
     const h2aInners = buildRevealUnits(h2a, HEADING_LINE_2A);
     const h3Inners = buildRevealUnits(h3, HEADING_LINE_3);
     const subInners = buildRevealUnits(subtitle, SUBTITLE);
 
-    /* ---------- Initial states ---------- */
     gsap.set(eyebrow, { opacity: 0, y: 20 });
     gsap.set(wordRotator, { opacity: 0, y: 30 });
     gsap.set([cta, stats], { opacity: 0, y: 30 });
@@ -107,20 +92,14 @@ export default function HeroSection() {
       if (el) el.textContent = '0';
     });
 
-    /* ================================================================ */
-    /*  ENTRANCE TIMELINE                                                */
-    /* ================================================================ */
+    /* ── Entrance timeline ──────────────────────────────── */
     const entranceTl = gsap.timeline({ delay: 2.3 });
 
     entranceTl.to(eyebrow, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0);
     entranceTl.to(eyebrowInners, { y: '0%', duration: 0.7, stagger: 0.08, ease: 'power3.out' }, 0);
-
     entranceTl.to(h1Inners, { y: '0%', duration: 0.7, stagger: 0.04, ease: 'power3.out' }, 0.15);
     entranceTl.to(h2aInners, { y: '0%', duration: 0.7, stagger: 0.05, ease: 'power3.out' }, 0.35);
-
-    /* Word rotator container fades in */
     entranceTl.to(wordRotator, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.45);
-
     entranceTl.to(h3Inners, { y: '0%', duration: 0.7, stagger: 0.04, ease: 'power3.out' }, 0.55);
     entranceTl.to(subInners, { y: '0%', duration: 0.7, stagger: 0.02, ease: 'power3.out' }, 0.7);
     entranceTl.to(cta, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.9);
@@ -144,11 +123,8 @@ export default function HeroSection() {
       );
     });
 
-    /* ================================================================ */
-    /*  WORD ROTATOR LOOP — starts after entrance finishes              */
-    /* ================================================================ */
+    /* ── Word rotator loop ────────────────────────────────── */
     const timers: NodeJS.Timeout[] = [];
-
     const startRotator = () => {
       const rotateWord = () => {
         const current = currentIndex.current;
@@ -162,37 +138,16 @@ export default function HeroSection() {
           },
         });
 
-        tl.to(wordText, {
-          y: -40,
-          opacity: 0,
-          duration: 0.35,
-          ease: 'power2.in',
-        });
-
-        tl.set(wordText, {
-          y: 40,
-          text: ROTATING_WORDS[next],
-        });
-
-        tl.to(wordText, {
-          y: 0,
-          opacity: 1,
-          duration: 0.45,
-          ease: 'power3.out',
-        });
-
+        tl.to(wordText, { y: -40, opacity: 0, duration: 0.35, ease: 'power2.in' });
+        tl.set(wordText, { y: 40, text: ROTATING_WORDS[next] });
+        tl.to(wordText, { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out' });
         rotatorTlRef.current = tl;
       };
-
-      // Start rotating after entrance + 2s pause
       timers.push(setTimeout(rotateWord, 2000));
     };
-
     startRotator();
 
-    /* ================================================================ */
-    /*  SCROLL-AWAY EFFECT                                              */
-    /* ================================================================ */
+    /* ── Scroll-away effect ───────────────────────────────── */
     const scrollTl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
@@ -201,25 +156,15 @@ export default function HeroSection() {
         scrub: 0.8,
       },
     });
-
-    scrollTl.fromTo(
-      content,
-      { y: 0, opacity: 1, scale: 1 },
-      { y: -150, opacity: 0, scale: 0.95, ease: 'none' },
-    );
+    scrollTl.fromTo(content, { y: 0, opacity: 1, scale: 1 }, { y: -150, opacity: 0, scale: 0.95, ease: 'none' });
 
     gsap.to(stats, {
       y: -60,
       ease: 'none',
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top',
-        end: '60% top',
-        scrub: 1,
-      },
+      scrollTrigger: { trigger: section, start: 'top top', end: '60% top', scrub: 1 },
     });
 
-    /* ---------- Cleanup ---------- */
+    /* ── Cleanup ─────────────────────────────────────────── */
     return () => {
       entranceTl.kill();
       scrollTl.kill();
@@ -233,11 +178,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section
-      id="home"
-      ref={sectionRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-    >
+    <section id="home" ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Three.js Background */}
       <div className="absolute inset-0 z-0">
         <HeroScene />
@@ -246,26 +187,19 @@ export default function HeroSection() {
       {/* Content */}
       <div ref={contentRef} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         {/* Eyebrow */}
-        <div
-          ref={eyebrowRef}
-          className="text-sm font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-8"
-        />
+        <div ref={eyebrowRef} className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[var(--sage)] mb-8" />
 
-        {/* Heading — word-by-word reveal */}
+        {/* Heading */}
         <div className="mb-8">
-          {/* Line 1: "Building products" */}
           <div
             ref={heading1Ref}
             className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)]"
           />
-
-          {/* Line 2: "that feel" + rotating gradient word */}
           <div className="flex flex-wrap justify-center mt-2">
             <div
               ref={heading2aRef}
               className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)]"
             />
-            {/* Rotating word with gradient — gradient applied DIRECTLY to the text span */}
             <div
               ref={wordRotatorRef}
               className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight inline-block overflow-hidden"
@@ -279,8 +213,6 @@ export default function HeroSection() {
               </span>
             </div>
           </div>
-
-          {/* Line 3: "and work well" */}
           <div
             ref={heading3Ref}
             className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight text-[var(--ink)] justify-center mt-2"
@@ -288,16 +220,13 @@ export default function HeroSection() {
         </div>
 
         {/* Subtitle */}
-        <div
-          ref={subtitleRef}
-          className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mb-12"
-        />
+        <div ref={subtitleRef} className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mb-12 leading-relaxed" />
 
         {/* CTA Buttons */}
         <div ref={ctaRef} className="flex flex-wrap gap-4 justify-center">
           <Button
             size="lg"
-            className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-8 text-sm tracking-wide"
+            className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink)]/90 h-12 px-8 text-[13px] font-semibold tracking-wide transition-all duration-300 hover:shadow-[0_4px_24px_-4px_oklch(0.13_0.005_265/25%)] hover:scale-[1.03] active:scale-[0.98]"
             asChild
           >
             <a href="#projects-all">
@@ -308,7 +237,7 @@ export default function HeroSection() {
           <Button
             variant="outline"
             size="lg"
-            className="border-[var(--line)] text-[var(--ink)] hover:bg-[var(--paper-2)] h-12 px-8 text-sm tracking-wide"
+            className="border-[var(--line)] text-[var(--ink)] hover:bg-[var(--paper-2)] h-12 px-8 text-[13px] font-semibold tracking-wide transition-all duration-300 hover:border-[var(--sage)]/30"
             asChild
           >
             <a href="#blog">
@@ -318,14 +247,14 @@ export default function HeroSection() {
           </Button>
         </div>
 
-        {/* Stats Strip */}
+        {/* Stats */}
         <div ref={statsRef} className="mt-20 md:mt-28 flex flex-wrap justify-center gap-10 md:gap-20">
           {STATS.map((stat, i) => (
             <div key={stat.label} className="text-center">
-              <p className="text-4xl md:text-5xl font-bold text-[var(--ink)]">
+              <p className="text-4xl md:text-5xl font-bold text-[var(--ink)] tabular-nums">
                 <span ref={setCounterRef(i)}>0{stat.suffix}</span>
               </p>
-              <p className="text-xs tracking-widest uppercase text-[var(--muted-foreground)] mt-2">
+              <p className="text-[11px] tracking-[0.15em] uppercase text-[var(--muted-foreground)] mt-2 font-medium">
                 {stat.label}
               </p>
             </div>

@@ -87,20 +87,20 @@ export function CTASection({ title }: { title: string }) {
       <div className="max-w-6xl mx-auto px-6">
         <div
           ref={ctaBoxRef}
-          className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/5"
+          className="relative rounded-2xl overflow-hidden border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm"
         >
-          {/* Decorative floating blobs */}
+          {/* Decorative floating blobs — increased size and opacity */}
           <div
             ref={blob1Ref}
-            className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-[var(--sage)]/10 rounded-full blur-3xl pointer-events-none"
+            className="absolute top-0 right-0 w-56 sm:w-72 h-56 sm:h-72 bg-[var(--sage)]/15 rounded-full blur-3xl pointer-events-none"
           />
           <div
             ref={blob2Ref}
-            className="absolute bottom-0 left-0 w-36 sm:w-48 h-36 sm:h-48 bg-[var(--lav)]/10 rounded-full blur-3xl pointer-events-none"
+            className="absolute bottom-0 left-0 w-48 sm:w-56 h-48 sm:h-56 bg-[var(--lav)]/15 rounded-full blur-3xl pointer-events-none"
           />
 
           <div className="relative z-10 py-12 sm:py-16 md:py-20 px-6 sm:px-8 md:px-16 text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4 sm:mb-6 max-w-3xl mx-auto leading-tight">
+            <h2 className="gradient-text text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 max-w-3xl mx-auto leading-tight">
               {title}
             </h2>
             <p className="text-white/50 mb-8 sm:mb-10 max-w-xl mx-auto text-sm sm:text-base">
@@ -109,7 +109,7 @@ export function CTASection({ title }: { title: string }) {
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-white text-[var(--ink)] hover:bg-white/90 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-300 hover:shadow-[0_0_24px_rgba(255,255,255,0.15)] hover:scale-[1.03] active:scale-[0.98]"
+                className="bg-white text-[var(--ink)] hover:bg-white/90 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-400 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.03] active:scale-[0.98]"
                 asChild
               >
                 <a href="#contact">
@@ -120,7 +120,7 @@ export function CTASection({ title }: { title: string }) {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white/20 text-white hover:bg-white/10 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.08)] hover:border-white/40 hover:scale-[1.03] active:scale-[0.98]"
+                className="border-white/20 text-white hover:bg-white/10 h-12 px-6 sm:px-8 text-sm tracking-wide transition-all duration-400 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:border-white/30 hover:scale-[1.03] active:scale-[0.98]"
                 asChild
               >
                 <a href="#projects-all">

@@ -104,9 +104,9 @@ function BackToTopButton() {
     <motion.button
       onClick={handleClick}
       animate={controls}
-      whileHover={{ scale: 1.1, boxShadow: '0 0 24px rgba(143,183,166,0.35)' }}
+      whileHover={{ scale: 1.1, boxShadow: '0 0 30px oklch(0.62 0.14 160/30%)' }}
       whileTap={{ scale: 0.95 }}
-      className="group relative w-11 h-11 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:border-[var(--sage)]/40 hover:bg-[var(--sage)]/10 transition-colors duration-300"
+      className="group relative w-11 h-11 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:border-[var(--sage)]/40 hover:bg-[var(--sage)]/10 transition-all duration-400"
       aria-label="Back to top"
     >
       {/* Animated arrow */}
@@ -150,9 +150,10 @@ export function Footer() {
 
   return (
     <footer ref={ref} className="bg-[var(--ink)] text-white mt-auto relative">
-      {/* ── Gradient decoration at the top ── */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--sage)]/30 to-transparent" />
-      <div className="absolute inset-x-0 -top-px h-24 bg-gradient-to-b from-[var(--sage)]/[0.03] to-transparent pointer-events-none" />
+      {/* ── Gradient decoration at the top (enhanced) ── */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--sage)]/40 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--sage)]/10 to-transparent" />
+      <div className="absolute inset-x-0 -top-px h-24 bg-gradient-to-b from-[var(--sage)]/[0.04] to-transparent pointer-events-none" />
 
       <motion.div
         className="max-w-6xl mx-auto px-6 py-16"
@@ -164,7 +165,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12 mb-12">
           {/* Brand */}
           <motion.div
-            className="md:col-span-2"
+            className="md:col-span-2 md:border-r md:border-white/[0.06] md:pr-12"
             custom={0}
             variants={columnVariants}
           >
@@ -193,11 +194,12 @@ export function Footer() {
                     variants={socialIconVariants}
                     whileHover={{
                       scale: 1.15,
-                      borderColor: 'rgba(143,183,166,0.35)',
-                      backgroundColor: 'rgba(143,183,166,0.1)',
+                      borderColor: 'rgba(143,183,166,0.5)',
+                      backgroundColor: 'rgba(143,183,166,0.12)',
+                      boxShadow: '0 0 12px rgba(143,183,166,0.2)',
                     }}
                     whileTap={{ scale: 0.92 }}
-                    className="w-9 h-9 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center transition-colors duration-300"
+                    className="w-9 h-9 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center transition-all duration-400"
                     title={platform.name}
                   >
                     {IconComponent && (
@@ -220,7 +222,7 @@ export function Footer() {
                   key={item.label}
                   href={item.href}
                   whileHover={{ x: 4 }}
-                  className="text-sm text-white/50 hover:text-[var(--sage)] transition-colors duration-200"
+                  className="text-sm text-white/40 hover:text-[var(--sage)] hover:pl-1 transition-all duration-300"
                 >
                   {item.label}
                 </motion.a>
