@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { gsap } from 'gsap';
 
+/* ── Module-level guard to prevent StrictMode double-play ──── */
+let _preloaderPlayed = false;
+
 interface PreloaderProps {
   onComplete: () => void;
 }
@@ -13,7 +16,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const progressRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const lettersRef = useRef<HTMLSpanElement[]>([]);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(() => !_preloaderPlayed);
   const onCompleteRef = useRef(onComplete);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
@@ -25,6 +28,13 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const letters = useMemo(() => ['A', 'h', 'm', 'e', 'd', '.'], []);
 
   useEffect(() => {
+    // ── Guard: if already played (StrictMode remount), skip entirely ──
+    if (_preloaderPlayed) {
+      // visible is already false from lazy initializer, just fire onComplete
+      onCompleteRef.current();
+      return;
+    }
+
     const preloader = preloaderRef.current;
     const curtain = curtainRef.current;
     const progress = progressRef.current;
@@ -32,7 +42,10 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     const letterEls = lettersRef.current;
     if (!preloader || !progress || !counter || letterEls.length === 0) return;
 
-    // Reset letter refs in case StrictMode re-mount reset them
+    // Mark as played immediately so StrictMode remount can't replay
+    _preloaderPlayed = true;
+
+    // Reset letter refs
     letterEls.forEach((el) => {
       if (el) {
         gsap.set(el, { clearProps: 'all' });
@@ -129,7 +142,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
       {/* ── Ambient gradient orb ──────────────────────────────── */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full pointer-events-none"
         aria-hidden="true"
         style={{
           background: 'radial-gradient(circle, oklch(0.62 0.14 160 / 8%) 0%, transparent 70%)',
@@ -137,10 +150,10 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       />
 
       {/* ── Main content ──────────────────────────────────────── */}
-      <div className="relative flex flex-col items-center gap-10">
+      <div className="relative flex flex-col items-center gap-8 sm:gap-10">
         {/* Name letters */}
         <div className="text-white" style={{ perspective: '600px' }}>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
             {letters.map((letter, i) => (
               <span
                 key={`${letter}-${i}`}
@@ -157,7 +170,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         </div>
 
         {/* Progress bar */}
-        <div className="w-48 md:w-64 flex items-center gap-3">
+        <div className="w-40 sm:w-48 md:w-64 flex items-center gap-3">
           <div className="flex-1 h-[2px] bg-white/15 rounded-full overflow-hidden">
             <div
               ref={progressRef}
