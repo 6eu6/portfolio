@@ -195,37 +195,35 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
             >
               {/* Card inner */}
               <div
-                className="card-inner relative h-[50vh] sm:h-[55vh] md:h-[60vh] rounded-2xl overflow-hidden transition-[border-color] duration-500 border border-[var(--line)] bg-[var(--paper-2)]/50 group-hover:border-[var(--sage)]/50"
+                className="card-inner relative h-[50vh] sm:h-[55vh] md:h-[60vh] rounded-2xl overflow-hidden transition-[border-color,box-shadow] duration-500 border border-[var(--line)] bg-[var(--paper-2)]/50 group-hover:border-[var(--sage)]/40"
                 style={{
                   transformStyle: 'preserve-3d',
                   backfaceVisibility: 'hidden',
                   willChange: 'transform, opacity, box-shadow',
                 }}
               >
-                {/* Depth shadow layer */}
+                {/* Category color glow — inside rounded clip, fades before edges */}
                 <div
-                  className="absolute inset-0 rounded-2xl transition-transform duration-500 group-hover:-translate-y-1"
+                  className="absolute inset-0 rounded-2xl opacity-100 group-hover:opacity-100 transition-opacity duration-500"
                   style={{
-                    background: 'var(--ink)',
-                    opacity: 0.04,
-                    transform: 'translateZ(-8px) translateY(4px)',
+                    background: `radial-gradient(ellipse 80% 60% at 30% 40%, ${categoryColors[project.category] || 'var(--sage)'}12 0%, transparent 70%)`,
                   }}
                 />
 
-                {/* Gradient background based on category — more vibrant */}
+                {/* Subtle corner gradient — soft, contained within rounded clip */}
                 <div
-                  className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-500"
+                  className="absolute inset-0 rounded-2xl opacity-100 group-hover:opacity-100 transition-opacity duration-500"
                   style={{
-                    background: categoryGradients[project.category] || categoryGradients.AI,
+                    background: `linear-gradient(135deg, ${categoryColors[project.category] || 'var(--sage)'}08 0%, transparent 50%)`,
                   }}
                 />
 
-                {/* Shine sweep overlay */}
+                {/* Shine sweep overlay — rounded to match card */}
                 <div
                   className="absolute inset-0 pointer-events-none rounded-2xl"
                   style={{
                     background:
-                      'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.20) 50%, rgba(255,255,255,0.12) 55%, transparent 60%)',
+                      'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.10) 45%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.10) 55%, transparent 60%)',
                     backgroundSize: '200% 100%',
                     backgroundPosition: 'calc(var(--shine, 0) * 100% + 50%) 0',
                     mixBlendMode: 'overlay',

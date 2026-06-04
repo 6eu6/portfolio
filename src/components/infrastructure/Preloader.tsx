@@ -7,60 +7,6 @@ interface PreloaderProps {
   onComplete: () => void;
 }
 
-/** Small particle rendered as a dot that drifts during loading */
-function Particle({ index }: { index: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    // Each particle gets a slightly random path
-    const randomX = (Math.random() - 0.5) * 200;
-    const randomY = (Math.random() - 0.5) * 200;
-    const size = 1.5 + Math.random() * 2.5;
-    const duration = 2 + Math.random() * 3;
-    const delay = Math.random() * 0.5;
-
-    gsap.set(el, {
-      x: `${(Math.random() - 0.5) * 100}vw`,
-      y: `${(Math.random() - 0.5) * 100}vh`,
-      opacity: 0,
-      scale: size,
-    });
-
-    gsap.to(el, {
-      opacity: 0.15 + Math.random() * 0.2,
-      duration: 0.8,
-      delay,
-      ease: 'power2.out',
-    });
-
-    gsap.to(el, {
-      x: `+=${randomX}`,
-      y: `+=${randomY}`,
-      duration,
-      delay,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-    });
-  }, []);
-
-  return (
-    <span
-      ref={ref}
-      className="absolute rounded-full bg-white pointer-events-none"
-      style={{
-        width: 3,
-        height: 3,
-        willChange: 'transform, opacity',
-      }}
-      aria-hidden="true"
-    />
-  );
-}
-
 export default function Preloader({ onComplete }: PreloaderProps) {
   const preloaderRef = useRef<HTMLDivElement>(null);
   const curtainRef = useRef<HTMLDivElement>(null);
@@ -68,15 +14,15 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const counterRef = useRef<HTMLSpanElement>(null);
   const lettersRef = useRef<HTMLSpanElement[]>([]);
   const [visible, setVisible] = useState(true);
+  const onCompleteRef = useRef(onComplete);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Split "Ahmed." into individual letter spans
+  // Keep onComplete ref fresh without causing re-renders
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
   const letters = useMemo(() => ['A', 'h', 'm', 'e', 'd', '.'], []);
-
-  // Determine which letter gets the sage color (the dot)
-  const getLetterClass = (letter: string, i: number) => {
-    if (letter === '.') return 'text-[var(--sage)] inline-block';
-    return 'inline-block';
-  };
 
   useEffect(() => {
     const preloader = preloaderRef.current;
@@ -86,29 +32,39 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     const letterEls = lettersRef.current;
     if (!preloader || !progress || !counter || letterEls.length === 0) return;
 
-    // ── Master timeline ──────────────────────────────────────────────
+    // Reset letter refs in case StrictMode re-mount reset them
+    letterEls.forEach((el) => {
+      if (el) {
+        gsap.set(el, { clearProps: 'all' });
+      }
+    });
+
     const tl = gsap.timeline({
       onComplete: () => {
-        // Curtain exit animation – clip-path scaleY 1→0 (curtain reveal)
         if (curtain) {
-          gsap.set(curtain, { clipPath: 'inset(0% 0% 0% 0%)', display: 'block' });
+          gsap.set(curtain, {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            display: 'block',
+          });
           gsap.to(curtain, {
             clipPath: 'inset(50% 0% 50% 0%)',
-            duration: 0.9,
+            duration: 0.85,
             ease: 'power4.inOut',
             onComplete: () => {
               setVisible(false);
-              onComplete();
+              onCompleteRef.current();
             },
           });
         } else {
           setVisible(false);
-          onComplete();
+          onCompleteRef.current();
         }
       },
     });
 
-    // ── 1. Letters entrance – staggered one by one ──────────────────
+    tlRef.current = tl;
+
+    // ── 1. Letters entrance ──────────────────────────────────────
     tl.fromTo(
       letterEls,
       { y: 60, opacity: 0, rotateX: -90 },
@@ -122,41 +78,36 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       }
     );
 
-    // ── 2. Subtle 3D progress bar ──────────────────────────────────
+    // ── 2. Progress bar ───────────────────────────────────────────
     const progressObj = { val: 0 };
     tl.to(progressObj, {
       val: 100,
-      duration: 1.6,
-      ease: 'power2.inOut',
+      duration: 1.4,
+      ease: 'power1.inOut',
       onUpdate: () => {
         const v = Math.round(progressObj.val);
         if (counter) counter.textContent = String(v);
         if (progress) {
-          // scaleX for width + subtle rotateX for 3D feel
-          const tilt = 2 * Math.sin((v / 100) * Math.PI); // peaks at 50%
-          progress.style.transform = `scaleX(${v / 100}) rotateX(${tilt}deg)`;
+          progress.style.transform = `scaleX(${v / 100})`;
         }
       },
-    }, '-=0.25');
+    }, '-=0.2');
 
-    // ── 3. Letters exit – stagger out ──────────────────────────────
-    tl.to(
-      letterEls,
-      {
-        y: -30,
-        opacity: 0,
-        rotateX: 40,
-        duration: 0.3,
-        stagger: 0.03,
-        ease: 'power2.in',
-      },
-      '+=0.15'
-    );
+    // ── 3. Letters exit ────────────────────────────────────────────
+    tl.to(letterEls, {
+      y: -25,
+      opacity: 0,
+      rotateX: 35,
+      duration: 0.25,
+      stagger: 0.025,
+      ease: 'power2.in',
+    }, '+=0.1');
 
     return () => {
       tl.kill();
+      tlRef.current = null;
     };
-  }, [onComplete]);
+  }, []);
 
   if (!visible) return null;
 
@@ -164,29 +115,30 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     <div
       ref={preloaderRef}
       className="fixed inset-0 z-[9999] bg-[var(--ink)] flex items-center justify-center overflow-hidden"
-      style={{ willChange: 'transform' }}
     >
-      {/* ── Subtle background grid ──────────────────────────────── */}
+      {/* ── Subtle grid background ─────────────────────────────── */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.04]"
+        className="absolute inset-0 pointer-events-none opacity-[0.035]"
         aria-hidden="true"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)',
+            'linear-gradient(rgba(255,255,255,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.25) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }}
       />
 
-      {/* ── Floating particles ─────────────────────────────────── */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        {Array.from({ length: 18 }).map((_, i) => (
-          <Particle key={i} index={i} />
-        ))}
-      </div>
+      {/* ── Ambient gradient orb ──────────────────────────────── */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background: 'radial-gradient(circle, oklch(0.62 0.14 160 / 8%) 0%, transparent 70%)',
+        }}
+      />
 
-      {/* ── Main content ────────────────────────────────────────── */}
-      <div className="relative flex flex-col items-center gap-10" style={{ perspective: '600px' }}>
-        {/* Name – split into individual letters */}
+      {/* ── Main content ──────────────────────────────────────── */}
+      <div className="relative flex flex-col items-center gap-10">
+        {/* Name letters */}
         <div className="text-white" style={{ perspective: '600px' }}>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
             {letters.map((letter, i) => (
@@ -195,7 +147,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 ref={(el) => {
                   if (el) lettersRef.current[i] = el;
                 }}
-                className={`${getLetterClass(letter, i)} [transform-style:preserve-3d]`}
+                className={`${letter === '.' ? 'text-[var(--sage)]' : ''} inline-block [transform-style:preserve-3d]`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 {letter}
@@ -204,25 +156,30 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           </h1>
         </div>
 
-        {/* Progress bar with 3D perspective */}
-        <div className="w-48 md:w-64 flex items-center gap-3" style={{ perspective: '400px' }}>
-          <div className="flex-1 h-[2px] bg-white/20 rounded-full overflow-hidden">
+        {/* Progress bar */}
+        <div className="w-48 md:w-64 flex items-center gap-3">
+          <div className="flex-1 h-[2px] bg-white/15 rounded-full overflow-hidden">
             <div
               ref={progressRef}
-              className="h-full bg-white rounded-full origin-left"
-              style={{ transform: 'scaleX(0)', willChange: 'transform', transformOrigin: 'left center' }}
+              className="h-full rounded-full origin-left"
+              style={{
+                background: 'linear-gradient(90deg, oklch(0.62 0.14 160), oklch(0.65 0.12 230), oklch(0.65 0.12 290))',
+                transform: 'scaleX(0)',
+                willChange: 'transform',
+                transformOrigin: 'left center',
+              }}
             />
           </div>
           <span
             ref={counterRef}
-            className="text-white/60 text-sm font-mono tabular-nums min-w-[2ch] text-right"
+            className="text-white/50 text-sm font-mono tabular-nums min-w-[2ch] text-right"
           >
             0
           </span>
         </div>
       </div>
 
-      {/* ── Curtain overlay for exit animation ──────────────────── */}
+      {/* ── Curtain overlay ──────────────────────────────────── */}
       <div
         ref={curtainRef}
         className="absolute inset-0 bg-[var(--ink)] pointer-events-none"
