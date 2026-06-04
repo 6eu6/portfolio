@@ -107,9 +107,13 @@ export default function ExpertiseSection() {
 
   return (
     <section id="expertise" className="relative py-28 md:py-40 overflow-hidden">
+      {/* Gradient orb behind grid */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--lav)]/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -left-20 w-[400px] h-[400px] bg-[var(--sage)]/6 rounded-full blur-3xl pointer-events-none" />
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[var(--sage)] mb-4">
           Expertise
         </p>
         <TextReveal
@@ -139,9 +143,9 @@ export default function ExpertiseSection() {
                   transform: 'translateZ(0)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateZ(20px) translateY(-4px)';
-                  e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--sage) 30%, transparent)';
-                  e.currentTarget.style.boxShadow = '0 20px 40px -12px rgba(0,0,0,0.12)';
+                  e.currentTarget.style.transform = 'translateZ(20px) translateY(-6px)';
+                  e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--sage) 40%, transparent)';
+                  e.currentTarget.style.boxShadow = '0 20px 50px -12px rgba(0,0,0,0.15)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateZ(0) translateY(0)';
@@ -150,20 +154,20 @@ export default function ExpertiseSection() {
                 }}
               >
                 <div
-                  className="expertise-icon w-12 h-12 rounded-lg flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundColor: `${area.color}12` }}
+                  className="expertise-icon w-12 h-12 rounded-lg flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110 backdrop-blur-sm border border-white/10"
+                  style={{ backgroundColor: `${area.color}18` }}
                 >
                   {IconComponent && (
                     <IconComponent
                       className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
-                      style={{ color: area.color }}
+                      style={{ color: area.color, opacity: 0.9 }}
                     />
                   )}
                 </div>
                 <h3 className="text-lg font-semibold text-[var(--ink)] mb-2">
                   {area.title}
                 </h3>
-                <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                <p className="text-[14px] text-[var(--muted-foreground)] leading-relaxed">
                   {area.description}
                 </p>
               </div>

@@ -21,6 +21,7 @@ export default function AboutSection() {
   const cardsRef = useRef<HTMLDivElement>(null);
   const blob1Ref = useRef<HTMLDivElement>(null);
   const blob2Ref = useRef<HTMLDivElement>(null);
+  const blob3Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -28,7 +29,8 @@ export default function AboutSection() {
     const cards = cardsRef.current;
     const blob1 = blob1Ref.current;
     const blob2 = blob2Ref.current;
-    if (!section || !bio || !cards || !blob1 || !blob2) return;
+    const blob3 = blob3Ref.current;
+    if (!section || !bio || !cards || !blob1 || !blob2 || !blob3) return;
 
     // ── Parallax decorative blobs at different scroll speeds ──
     const parallaxCtx = gsap.context(() => {
@@ -51,6 +53,17 @@ export default function AboutSection() {
           start: 'top bottom',
           end: 'bottom top',
           scrub: 1, // 1.5x speed (larger displacement)
+        },
+      });
+
+      gsap.to(blob3, {
+        y: -160,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
         },
       });
     }, section);
@@ -125,16 +138,20 @@ export default function AboutSection() {
       {/* Parallax decorative blobs */}
       <div
         ref={blob1Ref}
-        className="absolute top-20 -left-32 w-64 h-64 bg-[var(--sage)]/8 rounded-full blur-3xl pointer-events-none will-change-transform"
+        className="absolute top-20 -left-32 w-80 h-80 bg-[var(--sage)]/12 rounded-full blur-3xl pointer-events-none will-change-transform"
       />
       <div
         ref={blob2Ref}
-        className="absolute bottom-20 -right-32 w-64 h-64 bg-[var(--lav)]/8 rounded-full blur-3xl pointer-events-none will-change-transform"
+        className="absolute bottom-20 -right-32 w-80 h-80 bg-[var(--lav)]/12 rounded-full blur-3xl pointer-events-none will-change-transform"
+      />
+      <div
+        ref={blob3Ref}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[var(--sage)]/6 rounded-full blur-3xl pointer-events-none will-change-transform"
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Section Label */}
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[var(--sage)] mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[var(--sage)] mb-4">
           About
         </p>
         <TextReveal
@@ -146,7 +163,7 @@ export default function AboutSection() {
         <div className="grid md:grid-cols-2 gap-12 md:gap-20">
           {/* Bio Text — with perspective for 3D tilt */}
           <div ref={bioRef} style={{ perspective: '800px' }}>
-            <div className="space-y-6 text-[var(--muted-foreground)] leading-relaxed text-[15px]">
+            <div className="space-y-6 text-[var(--muted-foreground)] leading-[1.75] text-[15px]">
               <p className="bio-line" style={{ transformStyle: 'preserve-3d' }}>
                 I&apos;m Ahmed Al-Shibani — a builder who sits at the intersection
                 of product, engineering, and design. I care about systems that are
@@ -174,7 +191,7 @@ export default function AboutSection() {
             {infoCards.map((card) => (
               <div
                 key={card.label}
-                className="info-card flex items-start gap-4 p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50 hover:border-[var(--sage)]/30 transition-colors duration-300 min-h-[72px]"
+                className="info-card flex items-start gap-4 p-5 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50 hover:border-[var(--sage)]/40 hover:bg-[var(--paper-2)]/80 hover:shadow-[0_8px_30px_-8px_oklch(0.62_0.14_160/15%)] transition-all duration-300 min-h-[72px]"
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[var(--sage)]/10 flex items-center justify-center">

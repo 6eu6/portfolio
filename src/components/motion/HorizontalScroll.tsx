@@ -21,6 +21,14 @@ const categoryColors: Record<string, string> = {
   SaaS: 'var(--rose)',
 };
 
+const categoryGradients: Record<string, string> = {
+  AI: 'linear-gradient(135deg, oklch(0.62 0.14 160 / 15%) 0%, oklch(0.62 0.14 160 / 5%) 50%, transparent 80%)',
+  FinTech: 'linear-gradient(135deg, oklch(0.65 0.12 230 / 15%) 0%, oklch(0.65 0.12 230 / 5%) 50%, transparent 80%)',
+  'Developer Tools': 'linear-gradient(135deg, oklch(0.70 0.09 80 / 15%) 0%, oklch(0.70 0.09 80 / 5%) 50%, transparent 80%)',
+  'Content Systems': 'linear-gradient(135deg, oklch(0.65 0.12 290 / 15%) 0%, oklch(0.65 0.12 290 / 5%) 50%, transparent 80%)',
+  SaaS: 'linear-gradient(135deg, oklch(0.62 0.16 10 / 15%) 0%, oklch(0.62 0.16 10 / 5%) 50%, transparent 80%)',
+};
+
 export default function HorizontalScroll({ projects, onProjectClick }: HorizontalScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -69,14 +77,14 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
       const inner = panel.querySelector<HTMLDivElement>('.card-inner');
       if (!inner) return;
 
-      // --- Entering from left: fade in + rotate from perspective ---
+      // Entering from left
       gsap.fromTo(
         inner,
         {
           rotateY: 12,
           scale: 0.92,
-          opacity: 0.4,
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.06)',
+          opacity: 0.3,
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.04)',
         },
         {
           rotateY: 0,
@@ -95,7 +103,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
         },
       );
 
-      // --- Exiting to right: rotate back + scale down ---
+      // Exiting to right
       gsap.fromTo(
         inner,
         {
@@ -107,8 +115,8 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
         {
           rotateY: -10,
           scale: 0.92,
-          opacity: 0.4,
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.06)',
+          opacity: 0.3,
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.04)',
           duration: 0.6,
           ease: 'power2.in',
           scrollTrigger: {
@@ -121,7 +129,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
         },
       );
 
-      // --- Shine effect: subtle highlight sweep as card passes through center ---
+      // Shine effect
       gsap.fromTo(
         inner,
         { '--shine': 0 } as any,
@@ -158,16 +166,16 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
     <section ref={sectionRef} className="relative overflow-x-clip">
       {/* Header */}
       <div ref={headerRef} className="max-w-6xl mx-auto px-6 pb-12 md:pb-16">
-        <p className="text-sm font-medium tracking-widest uppercase text-[var(--sage)] mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[var(--sage)] mb-4">
           Featured Work
         </p>
         <h2 className="text-3xl md:text-5xl font-bold text-[var(--ink)]">
           Projects that{' '}
-          <span className="text-[var(--sage)]">matter</span>
+          <span className="gradient-text">matter</span>
         </h2>
       </div>
 
-      {/* Perspective wrapper — enables 3D transforms on children */}
+      {/* Perspective wrapper */}
       <div
         ref={perspectiveRef}
         className="overflow-hidden"
@@ -185,7 +193,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
               style={{ transformStyle: 'preserve-3d' }}
               onClick={() => onProjectClick(project)}
             >
-              {/* Card inner — this gets the 3D transforms */}
+              {/* Card inner */}
               <div
                 className="card-inner relative h-[50vh] sm:h-[55vh] md:h-[60vh] rounded-2xl overflow-hidden transition-[border-color] duration-500 border border-[var(--line)] bg-[var(--paper-2)]/50 group-hover:border-[var(--sage)]/50"
                 style={{
@@ -194,7 +202,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                   willChange: 'transform, opacity, box-shadow',
                 }}
               >
-                {/* Depth shadow layer — adds thickness illusion */}
+                {/* Depth shadow layer */}
                 <div
                   className="absolute inset-0 rounded-2xl transition-transform duration-500 group-hover:-translate-y-1"
                   style={{
@@ -204,24 +212,20 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                   }}
                 />
 
-                {/* Gradient background based on category */}
+                {/* Gradient background based on category — more vibrant */}
                 <div
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-500"
                   style={{
-                    background: `linear-gradient(
-                      135deg,
-                      ${categoryColors[project.category] || 'var(--sage)'}40,
-                      transparent 70%
-                    )`,
+                    background: categoryGradients[project.category] || categoryGradients.AI,
                   }}
                 />
 
-                {/* Shine sweep overlay — driven by GSAP --shine custom prop */}
+                {/* Shine sweep overlay */}
                 <div
                   className="absolute inset-0 pointer-events-none rounded-2xl"
                   style={{
                     background:
-                      'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.12) 55%, transparent 60%)',
+                      'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.20) 50%, rgba(255,255,255,0.12) 55%, transparent 60%)',
                     backgroundSize: '200% 100%',
                     backgroundPosition: 'calc(var(--shine, 0) * 100% + 50%) 0',
                     mixBlendMode: 'overlay',
@@ -234,7 +238,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                   <div className="flex items-start justify-between">
                     <div>
                       <span
-                        className="text-xs font-medium px-3 py-1.5 rounded-full"
+                        className="text-[11px] font-semibold tracking-wide px-3 py-1.5 rounded-full"
                         style={{
                           backgroundColor: `${categoryColors[project.category] || 'var(--primary)'}15`,
                           color: categoryColors[project.category] || 'var(--primary)',
@@ -242,7 +246,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                       >
                         {project.category}
                       </span>
-                      <span className="text-xs text-[var(--muted-foreground)] ml-3">{project.year}</span>
+                      <span className="text-[11px] text-[var(--muted-foreground)] ml-3 font-medium">{project.year}</span>
                     </div>
                     <ArrowUpRight className="w-5 h-5 text-[var(--muted-foreground)] group-hover:text-[var(--sage)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
                   </div>
@@ -253,7 +257,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                       {project.title}
                     </h3>
                     <p className="text-sm text-[var(--muted-foreground)] mb-4">{project.subtitle}</p>
-                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed max-w-md">
+                    <p className="text-[14px] text-[var(--muted-foreground)] leading-relaxed max-w-md">
                       {project.description}
                     </p>
                   </div>
@@ -264,13 +268,13 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                       {project.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="text-xs px-2.5 py-1 rounded-full bg-[var(--ink)]/5 text-[var(--muted-foreground)]"
+                          className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[var(--ink)]/5 text-[var(--muted-foreground)]"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <span className="text-lg font-bold text-[var(--sage)]">{project.metric}</span>
+                    <span className="text-lg font-bold text-[var(--sage)] tabular-nums">{project.metric}</span>
                   </div>
                 </div>
               </div>
