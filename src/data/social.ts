@@ -11,17 +11,14 @@ export const navigation: NavItem[] = [
 ];
 
 export const stats = [
-  { value: "20+", label: "Projects" },
-  { value: "5+", label: "Years Building" },
-  { value: "50+", label: "Articles" },
-  { value: "10K+", label: "Community Reach" }
+  { value: "9+", label: "Projects Built" },
+  { value: "4", label: "Live Products" },
+  { value: "4", label: "Open Source Repos" },
+  { value: "10+", label: "Technologies" }
 ];
 
 export const socialPlatforms: SocialPlatform[] = [
-  { name: "GitHub", description: "Open source projects and developer tools", metric: "120+", metricLabel: "Repos", url: "#", icon: "Github", color: "#333" },
-  { name: "Telegram", description: "Private channel with notes and resources", metric: "2.1K+", metricLabel: "Members", url: "#", icon: "Send", color: "#229ED9" },
-  { name: "X / Twitter", description: "Short ideas, threads, and progress updates", metric: "3.2K+", metricLabel: "Followers", url: "#", icon: "Twitter", color: "#000" },
-  { name: "LinkedIn", description: "Professional insights and collaborations", metric: "1.8K+", metricLabel: "Network", url: "#", icon: "Linkedin", color: "#0A66C2" },
-  { name: "YouTube", description: "Tutorials, case studies, and walkthroughs", metric: "12K+", metricLabel: "Views", url: "#", icon: "Youtube", color: "#FF0000" },
-  { name: "Newsletter", description: "Essays, frameworks, and curated resources", metric: "2.5K+", metricLabel: "Subscribers", url: "#", icon: "Mail", color: "#8FB7A6" }
+  { name: "GitHub", description: "Projects, open source work, and experiments", metric: "9+", metricLabel: "Projects", url: "https://github.com/6eu6", icon: "Github", color: "#333" },
+  { name: "X / Twitter", description: "AI, productivity, and building in public", metric: "@30piq", metricLabel: "Handle", url: "https://x.com/30piq", icon: "Twitter", color: "#000" },
+  { name: "Email", description: "The fastest way to reach me directly", metric: "24h", metricLabel: "Response", url: "mailto:maxok99x8@gmail.com", icon: "Mail", color: "#8FB7A6" }
 ];
