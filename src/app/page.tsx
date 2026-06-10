@@ -132,15 +132,15 @@ export default function Home() {
             <div className="py-6 sm:py-8 border-y border-[var(--line)] overflow-hidden">
               <Marquee speed={40} className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[var(--ink)]/[0.10]">
                 <span className="mx-6 sm:mx-8">Products</span>
-                <span className="text-[var(--sage)]/35 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sage)]/30 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">Systems</span>
-                <span className="text-[var(--sky)]/35 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sage)]/30 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">Design</span>
-                <span className="text-[var(--lav)]/35 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sage)]/30 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">Engineering</span>
-                <span className="text-[var(--sage)]/35 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sage)]/30 mx-3 sm:mx-4">◆</span>
                 <span className="mx-6 sm:mx-8">AI</span>
-                <span className="text-[var(--sky)]/35 mx-3 sm:mx-4">◆</span>
+                <span className="text-[var(--sage)]/30 mx-3 sm:mx-4">◆</span>
               </Marquee>
             </div>
 

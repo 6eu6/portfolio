@@ -292,7 +292,7 @@ export default function Header() {
       <div className="absolute bottom-0 left-0 right-0 h-[2px]">
         <div
           ref={progressRef}
-          className="h-full bg-gradient-to-r from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] origin-left"
+          className="h-full bg-[var(--sage)] origin-left"
           style={{ transform: 'scaleX(0)' }}
         />
       </div>

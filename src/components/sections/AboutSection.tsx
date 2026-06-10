@@ -142,7 +142,7 @@ export default function AboutSection() {
       />
       <div
         ref={blob2Ref}
-        className="absolute bottom-20 -right-32 w-80 h-80 bg-[var(--lav)]/12 rounded-full blur-3xl pointer-events-none will-change-transform"
+        className="absolute bottom-20 -right-32 w-80 h-80 bg-[var(--sage)]/8 rounded-full blur-3xl pointer-events-none will-change-transform"
       />
       <div
         ref={blob3Ref}

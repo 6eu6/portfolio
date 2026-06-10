@@ -203,7 +203,7 @@ export default function HeroSection() {
             >
               <span
                 ref={wordTextRef}
-                className="inline-block bg-gradient-to-r from-[var(--sage)] via-[var(--sky)] to-[var(--lav)] bg-clip-text text-transparent"
+                className="inline-block gradient-text"
               >
                 calm
               </span>

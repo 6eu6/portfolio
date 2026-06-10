@@ -259,9 +259,9 @@ export const projects: Project[] = [
       "Continuously updated course catalog",
     ],
     lessons: "Aggregation products are curation products — the value is in what you filter out, not how much you list.",
-    coverImage: shot("https://learn-plus.uk"),
+    coverImage: ogRepo("LEARN-PLUS-COURSES"),
     liveUrl: "https://learn-plus.uk",
-    sourceUrl: "#",
+    sourceUrl: "https://github.com/6eu6/LEARN-PLUS-COURSES",
     nextProject: "al-qadhi-store",
   },
 ];
