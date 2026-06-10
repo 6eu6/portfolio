@@ -52,6 +52,9 @@ const categoryColors: Record<string, string> = {
   'Developer Tools': 'var(--sand)',
   'Content Systems': 'var(--lav)',
   SaaS: 'var(--rose)',
+  'E-Commerce': 'var(--rose)',
+  Automation: 'var(--sand)',
+  'Web Platform': 'var(--sky)',
 };
 
 function getStatusStyle(status: string): {
@@ -287,9 +290,58 @@ export default function ProjectDetailDialog({
                 {project.subtitle}
               </p>
 
+              {/* Quick links */}
+              {(hasLiveUrl || hasSourceUrl) && (
+                <div className="flex flex-wrap items-center gap-3 mt-6">
+                  {hasLiveUrl && (
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-semibold rounded-full px-5 py-2.5 text-white transition-transform hover:scale-[1.03]"
+                      style={{ backgroundColor: catColor }}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Visit Live Site
+                      <span className="hidden sm:inline font-normal opacity-80">
+                        — {project.liveUrl.replace(/^https?:\/\//, '')}
+                      </span>
+                    </a>
+                  )}
+                  {hasSourceUrl && (
+                    <a
+                      href={project.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium rounded-full px-5 py-2.5 border border-[var(--line)] text-[var(--ink)]/80 hover:border-[var(--ink)]/30 hover:text-[var(--ink)] transition-colors"
+                    >
+                      <Github className="w-4 h-4" />
+                      Source Code
+                    </a>
+                  )}
+                </div>
+              )}
+
               {/* Divider */}
               <div className="mt-8 w-16 h-px" style={{ backgroundColor: `${catColor}40` }} />
             </section>
+
+            {/* ------------------------------------------------------------ */}
+            {/*  1b. Cover image                                               */}
+            {/* ------------------------------------------------------------ */}
+            {project.coverImage && (
+              <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+                <div className="relative rounded-2xl overflow-hidden border border-[var(--line)] bg-[var(--paper-2)]/40 shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={project.coverImage}
+                    alt={`${project.title} preview`}
+                    className="w-full h-auto object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </section>
+            )}
 
             {/* ------------------------------------------------------------ */}
             {/*  2. Problem & Solution                                         */}

@@ -16,6 +16,9 @@ const categoryColors: Record<string, string> = {
   'Developer Tools': 'var(--sand)',
   'Content Systems': 'var(--lav)',
   SaaS: 'var(--rose)',
+  'E-Commerce': 'var(--rose)',
+  Automation: 'var(--sand)',
+  'Web Platform': 'var(--sky)',
 };
 
 export function ProjectsSection({ onProjectClick }: { onProjectClick: (p: Project) => void }) {
@@ -92,8 +95,22 @@ export function ProjectsSection({ onProjectClick }: { onProjectClick: (p: Projec
             >
               <div
                 onClick={() => onProjectClick(project)}
-                className="group relative p-6 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50 h-full transition-all hover:border-[var(--sage)]/30 hover:shadow-lg"
+                className="group relative rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50 h-full overflow-hidden transition-all hover:border-[var(--sage)]/30 hover:shadow-lg"
               >
+                {/* Cover image */}
+                {project.coverImage && (
+                  <div className="relative aspect-video overflow-hidden border-b border-[var(--line)] bg-[var(--ink)]/5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={project.coverImage}
+                      alt={`${project.title} screenshot`}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                )}
+
+                <div className="p-6">
                 {/* Category + Status */}
                 <div className="flex items-center justify-between mb-4">
                   <span
@@ -132,6 +149,7 @@ export function ProjectsSection({ onProjectClick }: { onProjectClick: (p: Projec
                 <div className="flex items-center justify-between pt-4 border-t border-[var(--line)]">
                   <span className="text-sm font-medium text-[var(--sage)]">{project.metric}</span>
                   <ArrowUpRight className="w-4 h-4 text-[var(--muted-foreground)] group-hover:text-[var(--sage)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                </div>
                 </div>
               </div>
             </TiltCard>

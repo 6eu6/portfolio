@@ -248,7 +248,7 @@ export function Footer() {
           className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-white/10 gap-4"
         >
           <p className="text-xs text-white/30 text-center sm:text-left">
-            © {new Date().getFullYear()} Ahmed Al-Shibani. Built with care.
+            © {new Date().getFullYear()} Ahmed Al-Shaibani. Built with care.
           </p>
 
           <BackToTopButton />

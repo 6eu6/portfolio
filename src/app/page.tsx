@@ -45,6 +45,7 @@ interface ApiProject {
   features: string;
   outcomes: string;
   lessons: string;
+  coverImage: string;
   liveUrl: string;
   sourceUrl: string;
   sortOrder: number;
@@ -78,6 +79,7 @@ function normalizeProject(p: ApiProject): Project {
     features: parse(p.features),
     outcomes: parse(p.outcomes),
     lessons: p.lessons || '',
+    coverImage: p.coverImage || '',
     liveUrl: p.liveUrl || '#',
     sourceUrl: p.sourceUrl || '#',
     nextProject: '',
