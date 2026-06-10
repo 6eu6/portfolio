@@ -101,6 +101,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
         scrub: 1,
         pin: true,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
       },
     });
 
@@ -158,6 +159,27 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
           },
         },
       );
+
+      // Cover image parallax — subtle horizontal drift as the card travels
+      const coverImg = panel.querySelector<HTMLImageElement>('.card-cover img');
+      if (coverImg) {
+        gsap.fromTo(
+          coverImg,
+          { xPercent: -5, scale: 1.12 },
+          {
+            xPercent: 5,
+            scale: 1.12,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panel,
+              containerAnimation: scrollTween,
+              start: 'left right',
+              end: 'right left',
+              scrub: true,
+            },
+          },
+        );
+      }
 
       // Shine effect
       gsap.fromTo(
@@ -297,13 +319,13 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
 
                     {/* Cover image */}
                     {project.coverImage && (
-                      <div className="relative mt-4 sm:mt-5 rounded-xl overflow-hidden border border-[var(--line)]/60 flex-1 min-h-[110px] bg-[var(--ink)]/5">
+                      <div className="card-cover relative mt-4 sm:mt-5 rounded-xl overflow-hidden border border-[var(--line)]/60 flex-1 min-h-[110px] bg-[var(--ink)]/5">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={project.coverImage}
                           alt={`${project.title} screenshot`}
                           loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
+                          className="absolute inset-0 w-full h-full object-cover object-top"
                         />
                       </div>
                     )}

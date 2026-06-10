@@ -257,22 +257,14 @@ export default function ArticleDialog({ article, open, onClose }: ArticleDialogP
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-        className="fixed inset-0 z-50 flex flex-col items-center justify-start rounded-none border-0 bg-[var(--paper)] p-0 sm:max-w-none translate-x-0 translate-y-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+        className="fixed top-[50%] left-[50%] z-50 flex flex-col w-[calc(100vw-2rem)] max-w-3xl h-[88vh] sm:h-[86vh] translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-0 gap-0 overflow-hidden shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-4"
         showCloseButton={false}
-        style={{
-          maxWidth: '100vw',
-          maxHeight: '100vh',
-          width: '100vw',
-          height: '100vh',
-        }}
       >
         {/* Accessibility title */}
         <DialogTitle className="sr-only">{article.title}</DialogTitle>
 
-        {/* Backdrop blur overlay is handled by DialogOverlay */}
-
         {/* Top bar */}
-        <header className="sticky top-0 z-10 flex items-center justify-between w-full px-6 py-4 border-b border-[var(--line)] bg-[var(--paper)]/80 backdrop-blur-md">
+        <header className="flex items-center justify-between w-full px-5 sm:px-6 py-3.5 border-b border-[var(--line)] bg-[var(--paper)]/90 backdrop-blur-md shrink-0">
           <button
             onClick={onClose}
             className="flex items-center gap-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--ink)] transition-colors"
@@ -290,8 +282,8 @@ export default function ArticleDialog({ article, open, onClose }: ArticleDialogP
         </header>
 
         {/* Article body — scrollable */}
-        <div className="flex-1 overflow-y-auto w-full">
-          <article className="mx-auto max-w-3xl px-6 py-12 md:py-16">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto w-full overscroll-contain">
+          <article className="mx-auto max-w-3xl px-5 sm:px-8 md:px-10 py-8 sm:py-10">
             {/* Meta row */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <Badge
