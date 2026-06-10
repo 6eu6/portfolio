@@ -190,10 +190,14 @@ export default function BlogSection() {
                 }}
               />
 
-              {/* Accent left line — single restrained sage */}
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--sage)]/70" />
+              {/* Article number — continues the 02, 03… series on the grid */}
+              <div className="absolute top-3 right-4 sm:top-5 sm:right-6 pointer-events-none select-none z-0">
+                <span className="text-[64px] sm:text-[96px] md:text-[120px] font-black leading-none tabular-nums text-[var(--sage)]/[0.07]">
+                  01
+                </span>
+              </div>
 
-              <div className="relative z-10 p-5 sm:p-8 md:p-10 pl-7 sm:pl-10 md:pl-14">
+              <div className="relative z-10 p-5 sm:p-8 md:p-10">
                 {/* Top row */}
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
                   <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full bg-[var(--sage)]/10 text-[var(--sage)]">

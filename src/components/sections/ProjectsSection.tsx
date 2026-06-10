@@ -7,6 +7,7 @@ import { projects, type Project } from '@/data/projects';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight } from 'lucide-react';
 import TiltCard from '@/components/scroll/TiltCard';
+import ProjectCover from '@/components/projects/ProjectCover';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -89,18 +90,10 @@ export function ProjectsSection({ onProjectClick }: { onProjectClick: (p: Projec
                 onClick={() => onProjectClick(project)}
                 className="group relative rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/50 h-full overflow-hidden transition-all hover:border-[var(--sage)]/30 hover:shadow-lg"
               >
-                {/* Cover image */}
-                {project.coverImage && (
-                  <div className="relative aspect-video overflow-hidden border-b border-[var(--line)] bg-[var(--ink)]/5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={project.coverImage}
-                      alt={`${project.title} screenshot`}
-                      loading="lazy"
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
-                    />
-                  </div>
-                )}
+                {/* Uniform cover */}
+                <div className="relative aspect-video overflow-hidden border-b border-[var(--line)]">
+                  <ProjectCover project={project} />
+                </div>
 
                 <div className="p-6">
                 {/* Category + Status */}

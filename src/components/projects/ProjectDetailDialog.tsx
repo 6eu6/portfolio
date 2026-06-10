@@ -16,6 +16,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import type { Project } from '@/data/projects';
+import ProjectCover from '@/components/projects/ProjectCover';
 
 /* ------------------------------------------------------------------ */
 /*  Props                                                              */
@@ -266,21 +267,13 @@ export default function ProjectDetailDialog({
             </section>
 
             {/* ------------------------------------------------------------ */}
-            {/*  1b. Cover image                                               */}
+            {/*  1b. Cover                                                     */}
             {/* ------------------------------------------------------------ */}
-            {project.coverImage && (
-              <section className="reveal-section mb-12">
-                <div className="relative rounded-2xl overflow-hidden border border-[var(--line)] bg-[var(--paper-2)]/40 shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={project.coverImage}
-                    alt={`${project.title} preview`}
-                    className="w-full h-auto object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </section>
-            )}
+            <section className="reveal-section mb-12">
+              <div className="relative aspect-[16/7] rounded-2xl overflow-hidden border border-[var(--line)] shadow-sm">
+                <ProjectCover project={project} size="hero" />
+              </div>
+            </section>
 
             {/* ------------------------------------------------------------ */}
             {/*  2. Problem & Solution                                         */}
