@@ -155,7 +155,7 @@ export const projects: Project[] = [
       "Full custom CMS instead of a static template",
     ],
     lessons: "Motion design needs restraint — every animation must serve reading order and hierarchy, or it becomes noise.",
-    coverImage: shot("https://portfolio-six-jet-q579pebced.vercel.app"),
+    coverImage: ogRepo("portfolio"),
     liveUrl: "https://portfolio-six-jet-q579pebced.vercel.app",
     sourceUrl: "https://github.com/6eu6/portfolio",
     nextProject: "activepieces-piece-builder",
