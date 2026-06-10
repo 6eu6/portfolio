@@ -15,7 +15,6 @@ import AboutSection from '@/components/sections/AboutSection';
 import ExpertiseSection from '@/components/sections/ExpertiseSection';
 import BlogSection from '@/components/sections/BlogSection';
 import SocialSection from '@/components/sections/SocialSection';
-import { CTASection } from '@/components/sections/CTASection';
 import { ContactSection } from '@/components/sections/ContactSection';
 import { Footer } from '@/components/sections/Footer';
 import Marquee from '@/components/motion/Marquee';
@@ -178,11 +177,6 @@ export default function Home() {
 
             {/* Social */}
             <SocialSection />
-
-            {/* CTA - Dark section */}
-            <div className="bg-[var(--ink)]">
-              <CTASection title="Let's design something useful, calm, and real." />
-            </div>
 
             {/* Contact */}
             <ContactSection />

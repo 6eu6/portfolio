@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Project } from '@/data/projects';
-import { ArrowUpRight, ExternalLink, Layers } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import ProjectCover from '@/components/projects/ProjectCover';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,6 +28,19 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
   const headerRef = useRef<HTMLDivElement>(null);
   const perspectiveRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const stRef = useRef<ScrollTrigger | null>(null);
+  const [active, setActive] = useState(0);
+  const count = projects.length;
+
+  // Jump to a project by index via the pinned-scroll range
+  const goTo = (i: number) => {
+    const st = stRef.current;
+    if (!st || count < 2) return;
+    const y = st.start + (i / (count - 1)) * (st.end - st.start);
+    const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number) => void } }).__lenis;
+    if (lenis) lenis.scrollTo(y);
+    else window.scrollTo({ top: y, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -64,9 +78,11 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           if (progress) progress.style.transform = `scaleX(${self.progress})`;
+          setActive(Math.round(self.progress * (count - 1)));
         },
       },
     });
+    stRef.current = scrollTween.scrollTrigger ?? null;
 
     // Refined "focus" effect: the centered card is full scale/opacity,
     // neighbours recede slightly — depth-of-field instead of big 3D spins.
@@ -110,24 +126,6 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
         },
       );
 
-      // Cover image parallax — gentle horizontal drift as the card travels
-      const coverImg = panel.querySelector<HTMLImageElement>('.card-cover img');
-      if (coverImg) {
-        gsap.fromTo(
-          coverImg,
-          { xPercent: -4, scale: 1.1 },
-          {
-            xPercent: 4, scale: 1.1, ease: 'none',
-            scrollTrigger: {
-              trigger: panel,
-              containerAnimation: scrollTween,
-              start: 'left right',
-              end: 'right left',
-              scrub: true,
-            },
-          },
-        );
-      }
     });
 
     return () => {
@@ -156,18 +154,39 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
           <span className="gradient-text">matter</span>
         </h2>
 
-        {/* Scroll progress indicator */}
-        <div className="mt-8 flex items-center gap-3 max-w-[220px]">
-          <div className="relative h-[3px] flex-1 rounded-full bg-[var(--ink)]/10 overflow-hidden">
+        {/* Scroll navigator: counter + progress + clickable dots */}
+        <div className="mt-8 flex items-center gap-4">
+          <span className="text-sm font-bold tabular-nums text-[var(--ink)]">
+            {String(active + 1).padStart(2, '0')}
+            <span className="text-[var(--muted-foreground)] font-medium"> / {String(count).padStart(2, '0')}</span>
+          </span>
+
+          <div className="relative h-[3px] w-24 sm:w-32 rounded-full bg-[var(--ink)]/10 overflow-hidden">
             <div
               ref={progressRef}
               className="absolute inset-0 origin-left rounded-full bg-[var(--sage)]"
               style={{ transform: 'scaleX(0)' }}
             />
           </div>
-          <span className="text-[10px] font-medium tracking-widest uppercase text-[var(--muted-foreground)] whitespace-nowrap hidden sm:inline">
-            Scroll →
-          </span>
+
+          <div className="flex items-center gap-1.5">
+            {projects.map((p, i) => (
+              <button
+                key={p.id}
+                onClick={() => goTo(i)}
+                aria-label={`Go to ${p.title}`}
+                className="group/dot p-1"
+              >
+                <span
+                  className={`block rounded-full transition-all duration-300 ${
+                    i === active
+                      ? 'w-5 h-[6px] bg-[var(--sage)]'
+                      : 'w-[6px] h-[6px] bg-[var(--ink)]/20 group-hover/dot:bg-[var(--ink)]/40'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -249,18 +268,10 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                       </div>
                     </div>
 
-                    {/* Cover image */}
-                    {project.coverImage && (
-                      <div className="card-cover relative mt-4 sm:mt-5 rounded-xl overflow-hidden border border-[var(--line)]/60 flex-1 min-h-[110px] bg-[var(--ink)]/5">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={project.coverImage}
-                          alt={`${project.title} screenshot`}
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover object-top"
-                        />
-                      </div>
-                    )}
+                    {/* Uniform cover */}
+                    <div className="card-cover relative mt-4 sm:mt-5 rounded-xl overflow-hidden border border-[var(--line)]/60 flex-1 min-h-[120px]">
+                      <ProjectCover project={project} />
+                    </div>
 
                     {/* Middle — title + description */}
                     <div className="mt-auto pt-4 sm:pt-6">
