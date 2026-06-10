@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 import { projects } from "@/data/projects";
 import { socialPlatforms } from "@/data/social";
 
 // POST /api/seed — seed the database from the canonical static data.
 // Pass ?force=true to wipe existing projects/socials and re-seed.
 export async function POST(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const force = request.nextUrl.searchParams.get("force") === "true";
 

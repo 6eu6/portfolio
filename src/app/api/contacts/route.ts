@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
-// GET /api/contacts — list all contact messages (newest first)
-export async function GET() {
+// GET /api/contacts — list all contact messages (newest first). Admin only:
+// these contain visitors' names, emails, and messages.
+export async function GET(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const messages = await db.contactMessage.findMany({
       orderBy: { createdAt: "desc" },

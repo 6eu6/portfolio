@@ -136,7 +136,7 @@ export function Footer() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch('/api/socials?XTransformPort=3000');
+        const res = await fetch('/api/socials');
         if (res.ok && !cancelled) {
           const data = await res.json();
           if (data.length > 0) {

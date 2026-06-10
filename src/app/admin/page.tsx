@@ -68,8 +68,14 @@ import {
 
 // ── Constants ───────────────────────────────────────────────────
 const API_BASE = '/api';
-const PORT_QUERY = 'XTransformPort=3000';
-const ADMIN_PASSWORD = 'admin123';
+const TOKEN_KEY = 'admin_token';
+
+// The admin secret is never stored in code. It is entered at login,
+// verified server-side against ADMIN_TOKEN, and kept only in sessionStorage.
+function getAdminToken(): string {
+  if (typeof window === 'undefined') return '';
+  return sessionStorage.getItem(TOKEN_KEY) || '';
+}
 
 const CATEGORIES = ['Product', 'AI', 'Engineering', 'Design', 'System Architecture'];
 const PROJECT_STATUSES = ['In Progress', 'Completed', 'On Hold', 'Archived'];
@@ -206,11 +212,12 @@ const emptyProjectForm: ProjectFormData = {
 
 // ── Helper: API fetch wrapper ──────────────────────────────────
 async function apiFetch(path: string, options?: RequestInit) {
-  const url = `${API_BASE}${path}${path.includes('?') ? '&' : '?'}${PORT_QUERY}`;
+  const url = `${API_BASE}${path}`;
   const res = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      'x-admin-token': getAdminToken(),
       ...options?.headers,
     },
   });
@@ -386,13 +393,22 @@ export default function AdminPage() {
   // ═══════════════════════════════════════════════════════════════
   // AUTH
   // ═══════════════════════════════════════════════════════════════
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      toast.success('Welcome back');
-    } else {
-      toast.error('Incorrect password');
+    try {
+      const res = await fetch(`${API_BASE}/admin/verify`, {
+        method: 'POST',
+        headers: { 'x-admin-token': passwordInput },
+      });
+      if (res.ok) {
+        sessionStorage.setItem(TOKEN_KEY, passwordInput);
+        setAuthenticated(true);
+        toast.success('Welcome back');
+      } else {
+        toast.error('Incorrect password');
+      }
+    } catch {
+      toast.error('Could not verify — try again');
     }
   };
 
