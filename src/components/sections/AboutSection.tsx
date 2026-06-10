@@ -165,7 +165,7 @@ export default function AboutSection() {
           <div ref={bioRef} style={{ perspective: '800px' }}>
             <div className="space-y-6 text-[var(--muted-foreground)] leading-[1.75] text-[15px]">
               <p className="bio-line" style={{ transformStyle: 'preserve-3d' }}>
-                I&apos;m Ahmed Al-Shibani — a builder who sits at the intersection
+                I&apos;m Ahmed Al-Shaibani — a builder who sits at the intersection
                 of product, engineering, and design. I care about systems that are
                 calm, precise, and built to last.
               </p>

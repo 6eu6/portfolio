@@ -19,6 +19,5 @@ export const stats = [
 
 export const socialPlatforms: SocialPlatform[] = [
   { name: "GitHub", description: "Projects, open source work, and experiments", metric: "9+", metricLabel: "Projects", url: "https://github.com/6eu6", icon: "Github", color: "#333" },
-  { name: "X / Twitter", description: "AI, productivity, and building in public", metric: "@30piq", metricLabel: "Handle", url: "https://x.com/30piq", icon: "Twitter", color: "#000" },
   { name: "Email", description: "The fastest way to reach me directly", metric: "24h", metricLabel: "Response", url: "mailto:maxok99x8@gmail.com", icon: "Mail", color: "#8FB7A6" }
 ];
