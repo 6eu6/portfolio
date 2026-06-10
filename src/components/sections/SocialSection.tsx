@@ -89,7 +89,7 @@ export default function SocialSection() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch('/api/socials?XTransformPort=3000');
+        const res = await fetch('/api/socials');
         if (res.ok && !cancelled) {
           const data = await res.json();
           if (data.length > 0) {
@@ -268,13 +268,19 @@ export default function SocialSection() {
                 <h3 className="text-base sm:text-lg font-semibold text-[var(--ink)] mb-1">{platform.name}</h3>
                 <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mb-4">{platform.description}</p>
                 <div className="flex items-center gap-2 pt-3 sm:pt-4 border-t border-[var(--line)]">
-                  <span
-                    className="metric-counter text-xl sm:text-2xl font-bold text-[var(--ink)] tabular-nums"
-                    data-value={numericValue}
-                    data-suffix={suffix}
-                  >
-                    0{suffix}
-                  </span>
+                  {/\d/.test(platform.metric) ? (
+                    <span
+                      className="metric-counter text-xl sm:text-2xl font-bold text-[var(--ink)] tabular-nums"
+                      data-value={numericValue}
+                      data-suffix={suffix}
+                    >
+                      0{suffix}
+                    </span>
+                  ) : (
+                    <span className="text-xl sm:text-2xl font-bold text-[var(--ink)]">
+                      {platform.metric}
+                    </span>
+                  )}
                   <span className="text-xs sm:text-sm text-[var(--muted-foreground)]">{platform.metricLabel}</span>
                 </div>
               </a>

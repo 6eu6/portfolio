@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -86,47 +85,6 @@ function getStatusStyle(status: string): {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Section entrance animation hook                                    */
-/* ------------------------------------------------------------------ */
-
-function useSectionReveal(containerRef: React.RefObject<HTMLDivElement | null>, enabled: boolean) {
-  const animated = useRef(false);
-
-  useEffect(() => {
-    if (!enabled || !containerRef.current || animated.current) return;
-
-    const timer = setTimeout(() => {
-      if (!containerRef.current) return;
-
-      const sections = containerRef.current.querySelectorAll<HTMLElement>('.reveal-section');
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.style.opacity = '1';
-              entry.target.style.transform = 'translateY(0)';
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { root: containerRef.current, threshold: 0.1 },
-      );
-
-      sections.forEach((section) => {
-        observer.observe(section);
-      });
-
-      animated.current = true;
-    }, 150);
-
-    return () => {
-      clearTimeout(timer);
-      animated.current = false;
-    };
-  }, [enabled, containerRef]);
-}
-
-/* ------------------------------------------------------------------ */
 /*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -188,9 +146,6 @@ export default function ProjectDetailDialog({
   open,
   onClose,
 }: ProjectDetailDialogProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  useSectionReveal(scrollContainerRef, open && !!project);
-
   if (!project) return null;
 
   // Parse fields that may come as JSON strings from API
@@ -245,15 +200,12 @@ export default function ProjectDetailDialog({
         {/* ---------------------------------------------------------------- */}
         {/*  Scrollable body                                                 */}
         {/* ---------------------------------------------------------------- */}
-        <div
-          ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto w-full"
-        >
+        <div data-lenis-prevent className="flex-1 overflow-y-auto w-full">
           <main className="mx-auto max-w-4xl px-6 py-12 md:py-16">
             {/* ------------------------------------------------------------ */}
             {/*  1. Hero area                                                  */}
             {/* ------------------------------------------------------------ */}
-            <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+            <section className="reveal-section mb-12">
               {/* Category + Year + Status */}
               <div className="flex flex-wrap items-center gap-3 mb-6">
                 <Badge
@@ -330,7 +282,7 @@ export default function ProjectDetailDialog({
             {/*  1b. Cover image                                               */}
             {/* ------------------------------------------------------------ */}
             {project.coverImage && (
-              <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+              <section className="reveal-section mb-12">
                 <div className="relative rounded-2xl overflow-hidden border border-[var(--line)] bg-[var(--paper-2)]/40 shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -346,7 +298,7 @@ export default function ProjectDetailDialog({
             {/* ------------------------------------------------------------ */}
             {/*  2. Problem & Solution                                         */}
             {/* ------------------------------------------------------------ */}
-            <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+            <section className="reveal-section mb-12">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Problem */}
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--paper-2)]/40 p-6 md:p-8">
@@ -382,7 +334,7 @@ export default function ProjectDetailDialog({
             {/* ------------------------------------------------------------ */}
             {/*  3. Description / Long Description                              */}
             {/* ------------------------------------------------------------ */}
-            <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+            <section className="reveal-section mb-12">
               <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Overview</h2>
               <div className="rounded-2xl border border-[var(--line)] bg-[var(--paper-2)]/30 p-6 md:p-8">
                 <p className="text-sm sm:text-base leading-7 md:leading-8 text-[var(--ink)]/80">
@@ -394,7 +346,7 @@ export default function ProjectDetailDialog({
             {/* ------------------------------------------------------------ */}
             {/*  4. Key Details Grid                                           */}
             {/* ------------------------------------------------------------ */}
-            <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+            <section className="reveal-section mb-12">
               <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Key Details</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
                 <DetailCard icon={Briefcase} label="Role" value={project.role} accentColor={catColor} />
@@ -419,7 +371,7 @@ export default function ProjectDetailDialog({
             {/*  5. Features List                                              */}
             {/* ------------------------------------------------------------ */}
             {features.length > 0 && (
-              <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+              <section className="reveal-section mb-12">
                 <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Features</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                   {features.map((feature, i) => (
@@ -433,7 +385,7 @@ export default function ProjectDetailDialog({
             {/*  6. Outcomes Section                                            */}
             {/* ------------------------------------------------------------ */}
             {outcomes.length > 0 && (
-              <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+              <section className="reveal-section mb-12">
                 <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Outcomes</h2>
                 <div className="rounded-2xl border border-[var(--line)] overflow-hidden">
                   {outcomes.map((outcome, i) => (
@@ -465,7 +417,7 @@ export default function ProjectDetailDialog({
             {/*  7. Tech Stack                                                 */}
             {/* ------------------------------------------------------------ */}
             {tags.length > 0 && (
-              <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+              <section className="reveal-section mb-12">
                 <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Tech Stack</h2>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
@@ -485,7 +437,7 @@ export default function ProjectDetailDialog({
             {/*  8. Lessons Learned                                            */}
             {/* ------------------------------------------------------------ */}
             {project.lessons && (
-              <section className="reveal-section mb-12 opacity-0 translate-y-6 transition-all duration-500 ease-out">
+              <section className="reveal-section mb-12">
                 <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Lessons Learned</h2>
                 <blockquote
                   className="relative rounded-2xl border-l-4 p-6 md:p-8 bg-[var(--paper-2)]/40"
@@ -510,7 +462,7 @@ export default function ProjectDetailDialog({
             {/*  9. Action Buttons                                             */}
             {/* ------------------------------------------------------------ */}
             {(hasLiveUrl || hasSourceUrl) && (
-              <section className="reveal-section opacity-0 translate-y-6 transition-all duration-500 ease-out">
+              <section className="reveal-section">
                 <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[var(--line)]">
                   {hasLiveUrl && (
                     <Button
