@@ -31,10 +31,10 @@ const SUBTITLE =
   'I design and engineer systems, products, and experiences where clarity and craft compound over time.';
 
 const STATS: { end: number; suffix: string; label: string }[] = [
-  { end: 20, suffix: '+', label: 'Projects' },
-  { end: 5, suffix: '+', label: 'Years Building' },
-  { end: 50, suffix: '+', label: 'Articles' },
-  { end: 10, suffix: 'K+', label: 'Community Reach' },
+  { end: 9, suffix: '+', label: 'Projects Built' },
+  { end: 4, suffix: '', label: 'Live Products' },
+  { end: 4, suffix: '', label: 'Open Source Repos' },
+  { end: 10, suffix: '+', label: 'Technologies' },
 ];
 
 export default function HeroSection() {

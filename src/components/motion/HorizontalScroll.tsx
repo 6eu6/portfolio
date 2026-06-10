@@ -40,6 +40,21 @@ const categoryStyle: Record<string, { color: string; glow: string; gradient: str
     glow: 'oklch(0.62 0.16 10 / 25%)',
     gradient: 'linear-gradient(160deg, oklch(0.62 0.16 10 / 8%) 0%, oklch(0.62 0.16 10 / 3%) 40%, transparent 70%)',
   },
+  'E-Commerce': {
+    color: 'oklch(0.62 0.16 10)',
+    glow: 'oklch(0.62 0.16 10 / 25%)',
+    gradient: 'linear-gradient(160deg, oklch(0.62 0.16 10 / 8%) 0%, oklch(0.62 0.16 10 / 3%) 40%, transparent 70%)',
+  },
+  Automation: {
+    color: 'oklch(0.70 0.09 80)',
+    glow: 'oklch(0.70 0.09 80 / 25%)',
+    gradient: 'linear-gradient(160deg, oklch(0.70 0.09 80 / 8%) 0%, oklch(0.70 0.09 80 / 3%) 40%, transparent 70%)',
+  },
+  'Web Platform': {
+    color: 'oklch(0.65 0.12 230)',
+    glow: 'oklch(0.65 0.12 230 / 25%)',
+    gradient: 'linear-gradient(160deg, oklch(0.65 0.12 230 / 8%) 0%, oklch(0.65 0.12 230 / 3%) 40%, transparent 70%)',
+  },
 };
 
 const defaultStyle = {
@@ -255,7 +270,7 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                   {/* ── Content ─────────────────────────────────────── */}
                   <div className="relative z-10 flex flex-col justify-between h-full p-5 sm:p-6 md:p-8 lg:p-10">
                     {/* Top row */}
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start justify-between gap-2 relative z-10">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span
                           className="text-[10px] sm:text-[11px] font-semibold tracking-wide px-2.5 py-1 rounded-full"
@@ -279,6 +294,19 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                         <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--muted-foreground)] group-hover:text-[var(--ink)] transition-colors duration-300" />
                       </div>
                     </div>
+
+                    {/* Cover image */}
+                    {project.coverImage && (
+                      <div className="relative mt-4 sm:mt-5 rounded-xl overflow-hidden border border-[var(--line)]/60 flex-1 min-h-[110px] bg-[var(--ink)]/5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={project.coverImage}
+                          alt={`${project.title} screenshot`}
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
+                        />
+                      </div>
+                    )}
 
                     {/* Middle — title + description */}
                     <div className="mt-auto pt-4 sm:pt-6">

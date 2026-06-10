@@ -14,21 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ahmed Al‑Shibani — Builder · Founder · Developer",
-  description: "A calm, precise portfolio hub for projects, systems, writing, and digital experiences built by Ahmed Al‑Shibani.",
-  keywords: ["Ahmed Al-Shibani", "portfolio", "builder", "founder", "developer", "AI", "product", "systems"],
-  authors: [{ name: "Ahmed Al‑Shibani" }],
+  title: "Ahmed Al‑Shaibani — Builder · Founder · Developer",
+  description: "A calm, precise portfolio hub for projects, systems, writing, and digital experiences built by Ahmed Al‑Shaibani.",
+  keywords: ["Ahmed Al-Shaibani", "portfolio", "builder", "founder", "developer", "AI", "product", "systems"],
+  authors: [{ name: "Ahmed Al‑Shaibani" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "Ahmed Al‑Shibani — Portfolio",
+    title: "Ahmed Al‑Shaibani — Portfolio",
     description: "Products, systems, and digital experiences. Builder · Founder · Developer.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ahmed Al‑Shibani — Portfolio",
+    title: "Ahmed Al‑Shaibani — Portfolio",
     description: "Products, systems, and digital experiences.",
   },
 };

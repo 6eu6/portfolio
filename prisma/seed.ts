@@ -2,6 +2,8 @@ import "dotenv/config";
 import { randomUUID } from "crypto";
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { projects } from "../src/data/projects";
+import { socialPlatforms } from "../src/data/social";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -62,112 +64,49 @@ async function main() {
   });
   console.log("  ✅ 2 articles");
 
-  // Projects
+  // Projects — from the canonical static data (src/data/projects.ts)
   await prisma.project.createMany({
-    data: [
-      {
-        slug: "ai-chatbot-platform",
-        title: "AI Chatbot Platform",
-        subtitle: "Intelligent conversational AI",
-        category: "AI",
-        description: "A full-stack AI chatbot platform with real-time streaming, context memory, and multi-model support.",
-        longDescription: "Built with Next.js and integrated with multiple LLM providers.",
-        tags: '["AI", "Next.js", "LLM", "WebSocket"]',
-        year: "2025",
-        status: "Completed",
-        metric: "10K+ users",
-        role: "Full-Stack Developer",
-        team: "Solo",
-        duration: "3 months",
-        problem: "Users needed a unified platform to interact with different AI models.",
-        solution: "Built a modular chat interface with multi-provider support.",
-        features: '["Real-time streaming", "Multi-model support", "Conversation memory"]',
-        outcomes: '["10K+ monthly active users", "99.9% uptime"]',
-        sortOrder: 0,
-      },
-      {
-        slug: "portfolio-3d-experience",
-        title: "3D Portfolio Experience",
-        subtitle: "Immersive web portfolio",
-        category: "Web Development",
-        description: "A visually stunning 3D portfolio with immersive scrolling and animations.",
-        tags: '["Three.js", "GSAP", "Next.js", "Framer Motion"]',
-        year: "2025",
-        status: "In Progress",
-        role: "Creative Developer",
-        team: "Solo",
-        duration: "Ongoing",
-        problem: "Traditional portfolios lack visual impact.",
-        solution: "Created an immersive 3D experience with React Three Fiber and GSAP.",
-        features: '["3D scrolling", "GSAP animations", "Responsive design"]',
-        outcomes: '["Unique user experience", "Award-worthy design"]',
-        sortOrder: 1,
-      },
-    ],
+    data: projects.map((p, i) => ({
+      slug: p.slug,
+      title: p.title,
+      subtitle: p.subtitle,
+      category: p.category,
+      description: p.description,
+      longDescription: p.longDescription,
+      coverImage: p.coverImage,
+      tags: JSON.stringify(p.tags),
+      year: p.year,
+      status: p.status,
+      metric: p.metric,
+      role: p.role,
+      team: p.team,
+      duration: p.duration,
+      problem: p.problem,
+      solution: p.solution,
+      features: JSON.stringify(p.features),
+      outcomes: JSON.stringify(p.outcomes),
+      lessons: p.lessons,
+      liveUrl: p.liveUrl,
+      sourceUrl: p.sourceUrl,
+      sortOrder: i,
+    })),
   });
-  console.log("  ✅ 2 projects");
+  console.log(`  ✅ ${projects.length} projects`);
 
-  // Social links
+  // Social links — from the canonical static data (src/data/social.ts)
   await prisma.socialLink.createMany({
-    data: [
-      {
-        name: "GitHub",
-        description: "Open source contributions",
-        metric: "50+",
-        metricLabel: "Repositories",
-        url: "https://github.com/6eu6",
-        icon: "Github",
-        color: "#333333",
-        sortOrder: 0,
-      },
-      {
-        name: "X / Twitter",
-        description: "Thoughts and updates",
-        metric: "2K+",
-        metricLabel: "Followers",
-        url: "https://twitter.com/6eu6",
-        icon: "Twitter",
-        color: "#1DA1F2",
-        sortOrder: 1,
-      },
-      {
-        name: "LinkedIn",
-        description: "Professional network",
-        metric: "500+",
-        metricLabel: "Connections",
-        url: "https://linkedin.com/in/6eu6",
-        icon: "Linkedin",
-        color: "#0077B5",
-        sortOrder: 2,
-      },
-      {
-        name: "Email",
-        description: "Get in touch",
-        url: "mailto:maxok611@gmail.com",
-        icon: "Mail",
-        color: "#EA4335",
-        sortOrder: 5,
-      },
-    ],
+    data: socialPlatforms.map((s, i) => ({
+      name: s.name,
+      description: s.description,
+      metric: s.metric,
+      metricLabel: s.metricLabel,
+      url: s.url,
+      icon: s.icon,
+      color: s.color,
+      sortOrder: i,
+    })),
   });
-  console.log("  ✅ 4 social links");
-
-  // Interview
-  await prisma.interview.create({
-    data: {
-      slug: "tech-talk-future-of-web",
-      title: "The Future of Web Development",
-      description: "Discussion about emerging web technologies and trends",
-      content: "# Interview Highlights\n\nKey topics discussed include 3D web experiences, AI integration, and the evolution of frameworks.",
-      platform: "Podcast",
-      platformUrl: "#",
-      featured: true,
-      published: true,
-      tags: '["Web Dev", "AI", "Future Tech"]',
-      sortOrder: 0,
-    },
-  });
-  console.log("  ✅ 1 interview");
+  console.log(`  ✅ ${socialPlatforms.length} social links`);
 
   // Site settings (use sequential create with explicit UUIDs)
   await prisma.siteSetting.create({ data: { id: randomUUID(), key: "site_title", value: "Portfolio" } });
