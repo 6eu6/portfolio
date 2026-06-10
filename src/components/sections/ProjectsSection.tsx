@@ -10,16 +10,8 @@ import TiltCard from '@/components/scroll/TiltCard';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const categoryColors: Record<string, string> = {
-  AI: 'var(--sage)',
-  FinTech: 'var(--sky)',
-  'Developer Tools': 'var(--sand)',
-  'Content Systems': 'var(--lav)',
-  SaaS: 'var(--rose)',
-  'E-Commerce': 'var(--rose)',
-  Automation: 'var(--sand)',
-  'Web Platform': 'var(--sky)',
-};
+const categoryColors: Record<string, string> = {};
+const DEFAULT_CAT = 'var(--sage)';
 
 export function ProjectsSection({ onProjectClick }: { onProjectClick: (p: Project) => void }) {
   const headerRef = useRef<HTMLDivElement>(null);
@@ -116,8 +108,8 @@ export function ProjectsSection({ onProjectClick }: { onProjectClick: (p: Projec
                   <span
                     className="text-xs font-medium px-2.5 py-1 rounded-full"
                     style={{
-                      backgroundColor: `${categoryColors[project.category] || 'var(--primary)'}15`,
-                      color: categoryColors[project.category] || 'var(--primary)',
+                      backgroundColor: `${categoryColors[project.category] || DEFAULT_CAT}15`,
+                      color: categoryColors[project.category] || DEFAULT_CAT,
                     }}
                   >
                     {project.category}

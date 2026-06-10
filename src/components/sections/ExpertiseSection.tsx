@@ -108,7 +108,7 @@ export default function ExpertiseSection() {
   return (
     <section id="expertise" className="relative py-28 md:py-40 overflow-hidden">
       {/* Gradient orb behind grid */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--lav)]/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--sage)]/6 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -left-20 w-[400px] h-[400px] bg-[var(--sage)]/6 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6">

@@ -45,16 +45,9 @@ function parseJSONField<T>(value: T | string | undefined, fallback: T[] = []): T
   return fallback;
 }
 
-const categoryColors: Record<string, string> = {
-  AI: 'var(--sage)',
-  FinTech: 'var(--sky)',
-  'Developer Tools': 'var(--sand)',
-  'Content Systems': 'var(--lav)',
-  SaaS: 'var(--rose)',
-  'E-Commerce': 'var(--rose)',
-  Automation: 'var(--sand)',
-  'Web Platform': 'var(--sky)',
-};
+/* Single sage accent for every category — restrained, intentional. */
+const categoryColors: Record<string, string> = {};
+const CAT_ACCENT = 'var(--sage)';
 
 function getStatusStyle(status: string): {
   bg: string;
@@ -120,16 +113,10 @@ function DetailCard({
   );
 }
 
-function FeatureCard({ feature, index }: { feature: string; index: number }) {
-  const colors = ['var(--sage)', 'var(--sky)', 'var(--sand)', 'var(--lav)', 'var(--rose)'];
-  const color = colors[index % colors.length];
-
+function FeatureCard({ feature }: { feature: string; index: number }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 p-4 transition-all hover:border-[var(--line)] hover:shadow-sm">
-      <div
-        className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full mt-0.5"
-        style={{ backgroundColor: `${color}18`, color }}
-      >
+    <div className="flex items-start gap-3 rounded-xl border border-[var(--line)] bg-[var(--paper-2)]/30 p-4 transition-all hover:border-[var(--sage)]/30 hover:shadow-sm">
+      <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full mt-0.5 bg-[var(--sage)]/12 text-[var(--sage)]">
         <CheckCircle2 className="w-3.5 h-3.5" />
       </div>
       <span className="text-sm leading-relaxed text-[var(--ink)]/85">{feature}</span>
@@ -153,7 +140,7 @@ export default function ProjectDetailDialog({
   const features = parseJSONField(project.features);
   const outcomes = parseJSONField(project.outcomes);
 
-  const catColor = categoryColors[project.category] || 'var(--sage)';
+  const catColor = categoryColors[project.category] || CAT_ACCENT;
   const statusStyle = getStatusStyle(project.status);
 
   const hasLiveUrl = project.liveUrl && project.liveUrl !== '#';
@@ -303,7 +290,7 @@ export default function ProjectDetailDialog({
                 {/* Problem */}
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--paper-2)]/40 p-6 md:p-8">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--rose)]/10 text-[var(--rose)]">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--ink)]/[0.06] text-[var(--ink)]/70">
                       <Target className="w-4 h-4" />
                     </div>
                     <h2 className="text-lg font-semibold text-[var(--ink)]">The Problem</h2>
@@ -350,8 +337,8 @@ export default function ProjectDetailDialog({
               <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Key Details</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
                 <DetailCard icon={Briefcase} label="Role" value={project.role} accentColor={catColor} />
-                <DetailCard icon={Users} label="Team" value={project.team} accentColor="var(--sky)" />
-                <DetailCard icon={Clock} label="Duration" value={project.duration} accentColor="var(--sand)" />
+                <DetailCard icon={Users} label="Team" value={project.team} accentColor={catColor} />
+                <DetailCard icon={Clock} label="Duration" value={project.duration} accentColor={catColor} />
                 <DetailCard
                   icon={Target}
                   label="Status"
@@ -362,7 +349,7 @@ export default function ProjectDetailDialog({
                   icon={CheckCircle2}
                   label="Key Metric"
                   value={project.metric}
-                  accentColor="var(--sage)"
+                  accentColor={catColor}
                 />
               </div>
             </section>
@@ -438,21 +425,12 @@ export default function ProjectDetailDialog({
             {/* ------------------------------------------------------------ */}
             {project.lessons && (
               <section className="reveal-section mb-12">
-                <h2 className="text-xl font-bold text-[var(--ink)] mb-4">Lessons Learned</h2>
-                <blockquote
-                  className="relative rounded-2xl border-l-4 p-6 md:p-8 bg-[var(--paper-2)]/40"
-                  style={{ borderLeftColor: catColor }}
-                >
-                  <div className="absolute -top-3 left-8 px-3 py-0.5 rounded-full text-xs font-medium tracking-wide uppercase"
-                    style={{
-                      backgroundColor: `${catColor}14`,
-                      color: catColor,
-                    }}
-                  >
-                    Takeaway
-                  </div>
-                  <p className="text-sm sm:text-base leading-relaxed text-[var(--ink)]/80 italic pt-2">
-                    &ldquo;{project.lessons}&rdquo;
+                <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--sage)] mb-3">
+                  Takeaway
+                </p>
+                <blockquote className="rounded-2xl border border-[var(--line)] bg-[var(--paper-2)]/40 p-6 md:p-8">
+                  <p className="text-base sm:text-lg leading-relaxed text-[var(--ink)]/85 font-medium">
+                    {project.lessons}
                   </p>
                 </blockquote>
               </section>

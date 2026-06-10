@@ -13,61 +13,20 @@ interface HorizontalScrollProps {
   onProjectClick: (p: Project) => void;
 }
 
-/* ── Category → color mapping ───────────────────────────────────── */
-const categoryStyle: Record<string, { color: string; glow: string; gradient: string }> = {
-  AI: {
-    color: 'oklch(0.62 0.14 160)',
-    glow: 'oklch(0.62 0.14 160 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.62 0.14 160 / 8%) 0%, oklch(0.62 0.14 160 / 3%) 40%, transparent 70%)',
-  },
-  FinTech: {
-    color: 'oklch(0.65 0.12 230)',
-    glow: 'oklch(0.65 0.12 230 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.65 0.12 230 / 8%) 0%, oklch(0.65 0.12 230 / 3%) 40%, transparent 70%)',
-  },
-  'Developer Tools': {
-    color: 'oklch(0.70 0.09 80)',
-    glow: 'oklch(0.70 0.09 80 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.70 0.09 80 / 8%) 0%, oklch(0.70 0.09 80 / 3%) 40%, transparent 70%)',
-  },
-  'Content Systems': {
-    color: 'oklch(0.65 0.12 290)',
-    glow: 'oklch(0.65 0.12 290 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.65 0.12 290 / 8%) 0%, oklch(0.65 0.12 290 / 3%) 40%, transparent 70%)',
-  },
-  SaaS: {
-    color: 'oklch(0.62 0.16 10)',
-    glow: 'oklch(0.62 0.16 10 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.62 0.16 10 / 8%) 0%, oklch(0.62 0.16 10 / 3%) 40%, transparent 70%)',
-  },
-  'E-Commerce': {
-    color: 'oklch(0.62 0.16 10)',
-    glow: 'oklch(0.62 0.16 10 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.62 0.16 10 / 8%) 0%, oklch(0.62 0.16 10 / 3%) 40%, transparent 70%)',
-  },
-  Automation: {
-    color: 'oklch(0.70 0.09 80)',
-    glow: 'oklch(0.70 0.09 80 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.70 0.09 80 / 8%) 0%, oklch(0.70 0.09 80 / 3%) 40%, transparent 70%)',
-  },
-  'Web Platform': {
-    color: 'oklch(0.65 0.12 230)',
-    glow: 'oklch(0.65 0.12 230 / 25%)',
-    gradient: 'linear-gradient(160deg, oklch(0.65 0.12 230 / 8%) 0%, oklch(0.65 0.12 230 / 3%) 40%, transparent 70%)',
-  },
-};
-
+/* ── Single restrained sage accent for every category ───────────── */
 const defaultStyle = {
   color: 'oklch(0.62 0.14 160)',
   glow: 'oklch(0.62 0.14 160 / 25%)',
-  gradient: 'linear-gradient(160deg, oklch(0.62 0.14 160 / 8%) 0%, transparent 70%)',
+  gradient: 'linear-gradient(160deg, oklch(0.62 0.14 160 / 8%) 0%, oklch(0.62 0.14 160 / 3%) 40%, transparent 70%)',
 };
+const categoryStyle: Record<string, { color: string; glow: string; gradient: string }> = {};
 
 export default function HorizontalScroll({ projects, onProjectClick }: HorizontalScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const perspectiveRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -90,7 +49,8 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
       },
     });
 
-    // Horizontal scroll tween
+    // Horizontal scroll tween — slightly tighter scrub for a precise feel
+    const progress = progressRef.current;
     const scrollTween = gsap.to(track, {
       x: () => -(track.scrollWidth - window.innerWidth),
       ease: 'none',
@@ -98,78 +58,66 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
         trigger: section,
         start: 'top top',
         end: () => `+=${track.scrollWidth - window.innerWidth}`,
-        scrub: 1,
+        scrub: 0.8,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          if (progress) progress.style.transform = `scaleX(${self.progress})`;
+        },
       },
     });
 
-    // 3D card effects using containerAnimation
+    // Refined "focus" effect: the centered card is full scale/opacity,
+    // neighbours recede slightly — depth-of-field instead of big 3D spins.
     const panels = track.querySelectorAll<HTMLDivElement>('.h-panel');
 
-    panels.forEach((panel, i) => {
+    panels.forEach((panel) => {
       const inner = panel.querySelector<HTMLDivElement>('.card-inner');
       if (!inner) return;
 
-      // Entering from left
+      // Enter: settle into focus as the card approaches centre
       gsap.fromTo(
         inner,
+        { scale: 0.9, opacity: 0.45, rotateY: 5 },
         {
-          rotateY: 12,
-          scale: 0.92,
-          opacity: 0.3,
-        },
-        {
-          rotateY: 0,
-          scale: 1,
-          opacity: 1,
-          duration: 0.6,
+          scale: 1, opacity: 1, rotateY: 0,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: panel,
             containerAnimation: scrollTween,
-            start: 'left 85%',
+            start: 'left 80%',
             end: 'center center',
             scrub: true,
           },
         },
       );
 
-      // Exiting to right
+      // Exit: recede symmetrically as it leaves centre
       gsap.fromTo(
         inner,
+        { scale: 1, opacity: 1, rotateY: 0 },
         {
-          rotateY: 0,
-          scale: 1,
-          opacity: 1,
-        },
-        {
-          rotateY: -10,
-          scale: 0.92,
-          opacity: 0.3,
-          duration: 0.6,
+          scale: 0.9, opacity: 0.45, rotateY: -5,
           ease: 'power2.in',
           scrollTrigger: {
             trigger: panel,
             containerAnimation: scrollTween,
             start: 'center center',
-            end: 'right 15%',
+            end: 'right 20%',
             scrub: true,
           },
         },
       );
 
-      // Cover image parallax — subtle horizontal drift as the card travels
+      // Cover image parallax — gentle horizontal drift as the card travels
       const coverImg = panel.querySelector<HTMLImageElement>('.card-cover img');
       if (coverImg) {
         gsap.fromTo(
           coverImg,
-          { xPercent: -5, scale: 1.12 },
+          { xPercent: -4, scale: 1.1 },
           {
-            xPercent: 5,
-            scale: 1.12,
-            ease: 'none',
+            xPercent: 4, scale: 1.1, ease: 'none',
             scrollTrigger: {
               trigger: panel,
               containerAnimation: scrollTween,
@@ -180,24 +128,6 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
           },
         );
       }
-
-      // Shine effect
-      gsap.fromTo(
-        inner,
-        { '--shine': 0 } as any,
-        {
-          '--shine': 1,
-          duration: 0.5,
-          ease: 'power1.inOut',
-          scrollTrigger: {
-            trigger: panel,
-            containerAnimation: scrollTween,
-            start: 'left 60%',
-            end: 'right 40%',
-            scrub: true,
-          },
-        },
-      );
     });
 
     return () => {
@@ -225,6 +155,20 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
           Projects that{' '}
           <span className="gradient-text">matter</span>
         </h2>
+
+        {/* Scroll progress indicator */}
+        <div className="mt-8 flex items-center gap-3 max-w-[220px]">
+          <div className="relative h-[3px] flex-1 rounded-full bg-[var(--ink)]/10 overflow-hidden">
+            <div
+              ref={progressRef}
+              className="absolute inset-0 origin-left rounded-full bg-[var(--sage)]"
+              style={{ transform: 'scaleX(0)' }}
+            />
+          </div>
+          <span className="text-[10px] font-medium tracking-widest uppercase text-[var(--muted-foreground)] whitespace-nowrap hidden sm:inline">
+            Scroll →
+          </span>
+        </div>
       </div>
 
       {/* Perspective wrapper */}
@@ -274,18 +218,6 @@ export default function HorizontalScroll({ projects, onProjectClick }: Horizonta
                     className="absolute inset-0 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700"
                     style={{
                       background: `radial-gradient(ellipse 70% 50% at 25% 35%, ${style.color}12 0%, transparent 70%)`,
-                    }}
-                  />
-
-                  {/* ── Shine sweep — clipped by parent overflow ───── */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background:
-                        'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.20) 50%, rgba(255,255,255,0.12) 55%, transparent 60%)',
-                      backgroundSize: '200% 100%',
-                      backgroundPosition: 'calc(var(--shine, 0) * 100% + 50%) 0',
-                      mixBlendMode: 'overlay',
                     }}
                   />
 

@@ -14,12 +14,15 @@ gsap.registerPlugin(ScrollTrigger);
 /* ------------------------------------------------------------------ */
 /*  Category → accent mapping                                            */
 /* ------------------------------------------------------------------ */
+/* Single restrained accent (sage) across all categories — distinction
+   comes from the text label, not from a rainbow of colors. */
+const SAGE = 'oklch(0.62 0.14 160)';
 const categoryAccent: Record<string, { color: string; colorRgb: string; bg: string }> = {
-  AI:          { color: 'oklch(0.62 0.14 160)', colorRgb: '0.62 0.14 160', bg: 'oklch(0.62 0.14 160 / 6%)' },
-  Product:      { color: 'oklch(0.70 0.09 80)',  colorRgb: '0.70 0.09 80',  bg: 'oklch(0.70 0.09 80 / 6%)' },
-  Engineering:  { color: 'oklch(0.65 0.12 230)', colorRgb: '0.65 0.12 230', bg: 'oklch(0.65 0.12 230 / 6%)' },
-  Design:       { color: 'oklch(0.65 0.12 290)', colorRgb: '0.65 0.12 290', bg: 'oklch(0.65 0.12 290 / 6%)' },
-  Strategy:     { color: 'oklch(0.62 0.16 10)',  colorRgb: '0.62 0.16 10',  bg: 'oklch(0.62 0.16 10 / 6%)' },
+  AI:          { color: SAGE, colorRgb: '0.62 0.14 160', bg: 'oklch(0.62 0.14 160 / 6%)' },
+  Product:      { color: SAGE, colorRgb: '0.62 0.14 160', bg: 'oklch(0.62 0.14 160 / 6%)' },
+  Engineering:  { color: SAGE, colorRgb: '0.62 0.14 160', bg: 'oklch(0.62 0.14 160 / 6%)' },
+  Design:       { color: SAGE, colorRgb: '0.62 0.14 160', bg: 'oklch(0.62 0.14 160 / 6%)' },
+  Strategy:     { color: SAGE, colorRgb: '0.62 0.14 160', bg: 'oklch(0.62 0.14 160 / 6%)' },
 };
 const defaultAccent = { color: 'oklch(0.50 0 0)', colorRgb: '0.50 0 0', bg: 'oklch(0.50 0 0 / 5%)' };
 
@@ -182,21 +185,13 @@ export default function BlogSection() {
                 className="absolute inset-0 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity duration-700"
                 style={{
                   background: `
-                    radial-gradient(ellipse 50% 40% at 0% 20%, oklch(0.62 0.14 160 / 8%) 0%, transparent 60%),
-                    radial-gradient(ellipse 40% 40% at 100% 80%, oklch(0.65 0.12 290 / 6%) 0%, transparent 60%)
+                    radial-gradient(ellipse 60% 50% at 0% 15%, oklch(0.62 0.14 160 / 7%) 0%, transparent 60%)
                   `,
                 }}
               />
 
-              {/* Large decorative number */}
-              <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-10 pointer-events-none select-none">
-                <span className="text-[80px] sm:text-[120px] md:text-[160px] font-black leading-none text-[var(--ink)]/[0.03] tabular-nums">
-                  01
-                </span>
-              </div>
-
-              {/* Accent left line */}
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] sm:w-[4px] bg-gradient-to-b from-[var(--sage)] via-[var(--sky)] to-[var(--lav)]" />
+              {/* Accent left line — single restrained sage */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--sage)]/70" />
 
               <div className="relative z-10 p-5 sm:p-8 md:p-10 pl-7 sm:pl-10 md:pl-14">
                 {/* Top row */}
