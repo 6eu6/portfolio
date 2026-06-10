@@ -10,7 +10,7 @@ export interface Project {
 /* Screenshot service for live sites (free, no API key) */
 const shot = (url: string) => `https://s0.wp.com/mshots/v1/${encodeURIComponent(url)}?w=1280&h=800`;
 /* GitHub OpenGraph card for public repos */
-const ogRepo = (repo: string) => `https://opengraph.githubusercontent.com/1/6eu6/${repo}`;
+const ogRepo = (repo: string) => `https://opengraph.githubassets.com/1/6eu6/${repo}`;
 
 export const projects: Project[] = [
   {

@@ -28,7 +28,11 @@ export default function CustomCursor({ isDark = false }: CursorProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [hoverText, setHoverText] = useState('');
   const blendModeRef = useRef<'normal' | 'difference'>(isDark ? 'difference' : 'normal');
-  const isMobile = typeof window !== 'undefined' ? isTouchDevice() : true;
+  // Render nothing until mounted so server and client first-paint match
+  // (computing touch capability during render causes a hydration mismatch).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isMobile = !mounted || isTouchDevice();
 
   // ── Also detect dark backgrounds under cursor via MutationObserver
   //    watching for elements with data-theme="dark" or [data-dark-section] ──
