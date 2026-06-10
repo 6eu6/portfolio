@@ -185,7 +185,7 @@ export function ContactSection() {
               </div>
               <div>
                 <p className="text-xs font-medium tracking-wider uppercase text-[var(--muted-foreground)] mb-1">Email</p>
-                <p className="text-sm text-[var(--ink)]">hello@ahmedshibani.com</p>
+                <p className="text-sm text-[var(--ink)]">Ahmed-alshaibani@outlook.com</p>
               </div>
             </div>
 
