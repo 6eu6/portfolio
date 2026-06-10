@@ -82,9 +82,13 @@ export default function WriteArticleDialog({ open, onClose, onPublished }: Write
         tags,
       };
 
-      const res = await fetch('/api/articles?XTransformPort=3000', {
+      const res = await fetch('/api/articles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token':
+            typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') || '' : '',
+        },
         body: JSON.stringify(body),
       });
 

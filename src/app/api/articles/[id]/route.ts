@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/articles/[id] — get a single article by ID
 export async function GET(
@@ -43,6 +44,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const { id } = await params;
     const articleId = parseInt(id, 10);
@@ -95,9 +98,11 @@ export async function PUT(
 
 // DELETE /api/articles/[id] — delete an article by ID
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const { id } = await params;
     const articleId = parseInt(id, 10);

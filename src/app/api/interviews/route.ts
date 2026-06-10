@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/interviews — list interviews
 export async function GET(request: NextRequest) {
@@ -24,6 +25,8 @@ export async function GET(request: NextRequest) {
 
 // POST /api/interviews — create a new interview
 export async function POST(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const body = await request.json();
 

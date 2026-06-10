@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/projects — list all projects
 export async function GET() {
@@ -20,6 +21,8 @@ export async function GET() {
 
 // POST /api/projects — create a new project
 export async function POST(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const body = await request.json();
 
