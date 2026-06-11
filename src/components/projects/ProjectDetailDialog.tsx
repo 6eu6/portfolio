@@ -56,14 +56,28 @@ function getStatusStyle(status: string): {
   dot: string;
 } {
   const s = status.toLowerCase();
-  if (s === 'in production' || s === 'live' || s === 'active') {
+  // Running / live / healthy → green
+  if (
+    s.includes('live') ||
+    s.includes('production') ||
+    s.includes('active') ||
+    s.includes('24/7') ||
+    s.includes('running')
+  ) {
     return {
       bg: 'rgba(34,197,94,0.10)',
       color: '#16a34a',
       dot: '#22c55e',
     };
   }
-  if (s === 'prototype' || s === 'beta') {
+  // Work in progress → amber
+  if (
+    s.includes('development') ||
+    s.includes('progress') ||
+    s.includes('building') ||
+    s.includes('beta') ||
+    s.includes('prototype')
+  ) {
     return {
       bg: 'rgba(245,158,11,0.10)',
       color: '#d97706',
