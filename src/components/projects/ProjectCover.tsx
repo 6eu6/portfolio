@@ -40,7 +40,7 @@ export default function ProjectCover({
   const handle = hasRepo
     ? `6eu6/${project.slug}`
     : hasLive
-    ? project.liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
+    ? project.liveUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '')
     : null;
   const HandleIcon = hasRepo ? Github : Globe;
 
