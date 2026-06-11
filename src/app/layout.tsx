@@ -14,16 +14,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.ahmed-alshaibani.com"),
   title: "Ahmed Al‑Shaibani — Builder · Founder · Developer",
   description: "A calm, precise portfolio hub for projects, systems, writing, and digital experiences built by Ahmed Al‑Shaibani.",
   keywords: ["Ahmed Al-Shaibani", "portfolio", "builder", "founder", "developer", "AI", "product", "systems"],
   authors: [{ name: "Ahmed Al‑Shaibani" }],
+  alternates: {
+    canonical: "https://www.ahmed-alshaibani.com",
+  },
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
     title: "Ahmed Al‑Shaibani — Portfolio",
     description: "Products, systems, and digital experiences. Builder · Founder · Developer.",
+    url: "https://www.ahmed-alshaibani.com",
+    siteName: "Ahmed Al‑Shaibani",
     type: "website",
   },
   twitter: {

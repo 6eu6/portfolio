@@ -156,7 +156,7 @@ export const projects: Project[] = [
     ],
     lessons: "Motion design needs restraint — every animation must serve reading order and hierarchy, or it becomes noise.",
     coverImage: ogRepo("portfolio"),
-    liveUrl: "https://portfolio-six-jet-q579pebced.vercel.app",
+    liveUrl: "https://www.ahmed-alshaibani.com",
     sourceUrl: "https://github.com/6eu6/portfolio",
     nextProject: "activepieces-piece-builder",
   },
